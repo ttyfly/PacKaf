@@ -20,23 +20,22 @@
 using UnityEngine;
 
 namespace PacKaf {
-    public class Character : MonoBehaviour {
-        private Fsm<Character> fsm;
-        private MapNavAgent navAgent;
+    public class PlayerWalkDownState : FsmState<Player> {
 
-        [SerializeField]
-        private float speed;
+        public override void OnUpdate(Fsm<Player> fsm) {
+            base.OnUpdate(fsm);
 
-        private void Start() {
-            navAgent = GetComponent<MapNavAgent>();
-            navAgent.ChaseTarget = GameObject.Find("kaf").GetComponent<MapNavAgent>();
-        }
+            fsm.Owner.Rigidbody.velocity = fsm.Owner.MoveSpeed * Vector2.down;
 
-        private void Update() {
-        }
-
-        public MapNavAgent NavAgent {
-            get { return navAgent; }
+            if (Input.GetKeyUp(KeyCode.S)) {
+                fsm.ChangeState<PlayerIdleState>();
+            } else if (Input.GetKeyDown(KeyCode.W)) {
+                fsm.ChangeState<PlayerWalkUpState>();
+            } else if (Input.GetKeyDown(KeyCode.A)) {
+                fsm.ChangeState<PlayerWalkLeftState>();
+            } else if (Input.GetKeyDown(KeyCode.D)) {
+                fsm.ChangeState<PlayerWalkRightState>();
+            }
         }
     }
 }

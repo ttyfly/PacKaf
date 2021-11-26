@@ -22,5 +22,34 @@ using UnityEngine;
 namespace PacKaf {
     public class Player : MonoBehaviour {
 
+        [SerializeField]
+        private float moveSpeed = 2;
+        private Fsm<Player> fsm;
+
+        private void Start() {
+            Rigidbody = GetComponent<Rigidbody2D>();
+            Renderer = GetComponent<SpriteRenderer>();
+
+            fsm = new Fsm<Player>(
+                this,
+                new PlayerIdleState(),
+                new PlayerWalkDownState(),
+                new PlayerWalkLeftState(),
+                new PlayerWalkRightState(),
+                new PlayerWalkUpState()
+            );
+            fsm.Start<PlayerIdleState>();
+        }
+
+        private void Update() {
+            fsm.Update();
+        }
+
+        public float MoveSpeed {
+            get { return moveSpeed; }
+        }
+
+        public Rigidbody2D Rigidbody { get; private set; }
+        public SpriteRenderer Renderer { get; private set; }
     }
 }

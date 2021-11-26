@@ -24,6 +24,11 @@ namespace PacKaf {
 
         private FsmState<T>[] states;
 
+        /// <summary>
+        /// Finite State Machine.
+        /// </summary>
+        /// <param name="owner">Owner of this fsm</param>
+        /// <param name="states">States the fsm contains</param>
         public Fsm(T owner, params FsmState<T>[] states) {
 
             if (states == null || states.Length == 0) {
@@ -38,6 +43,10 @@ namespace PacKaf {
             }
         }
 
+        /// <summary>
+        /// Start the fsm.
+        /// </summary>
+        /// <typeparam name="U">Initial state</typeparam>
         public void Start<U>() where U: FsmState<T> {
             foreach (FsmState<T> state in states) {
                 if (state is U) {
@@ -49,19 +58,35 @@ namespace PacKaf {
             Debug.LogErrorFormat("Start fsm failed: Fsm '{0}' doesn't contain state '{1}'.", this.GetType().Name, typeof(U).Name);
         }
 
+        /// <summary>
+        /// This function should be called each frame when the fsm is enabled.
+        /// </summary>
         public void Update() {
+            if (CurrentState == null) {
+                Debug.LogErrorFormat("Update fsm failed: Fsm '{0}' is not started.", this.GetType().Name);
+                return;
+            }
             CurrentState.OnUpdate(this);
         }
 
+        /// <summary>
+        /// Destroy the fsm.
+        /// </summary>
         public void Destroy() {
             if (CurrentState != null) {
                 CurrentState.OnLeave(this);
             }
-            foreach (FsmState<T> state in states) {
-                state.OnDestroy(this);
+            for (int i = 0; i < states.Length; i++) {
+                states[i].OnDestroy(this);
+                states[i] = null;
             }
+            states = null;
         }
 
+        /// <summary>
+        /// Change the state of fsm.
+        /// </summary>
+        /// <typeparam name="U">State</typeparam>
         public void ChangeState<U>() where U: FsmState<T> {
             if (CurrentState == null) {
                 Debug.LogErrorFormat("Change state failed: Fsm '{0}' is not started.", this.GetType().Name);
@@ -78,7 +103,16 @@ namespace PacKaf {
             Debug.LogErrorFormat("Change state failed: Fsm '{0}' doesn't contain state '{1}'.", this.GetType().Name, typeof(U).Name);
         }
 
+        /// <summary>
+        /// Owner of fsm.
+        /// </summary>
+        /// <value>Owner</value>
         public T Owner { get; private set; }
+
+        /// <summary>
+        /// Current state of fsm.
+        /// </summary>
+        /// <value>Current state</value>
         public FsmState<T> CurrentState { get; private set; }
     }
 }

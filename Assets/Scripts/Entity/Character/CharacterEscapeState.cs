@@ -17,26 +17,8 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using UnityEngine;
-
 namespace PacKaf {
-    public class Character : MonoBehaviour {
-        private Fsm<Character> fsm;
-        private MapNavAgent navAgent;
+    public class CharacterEscapeState : FsmState<Character> {
 
-        [SerializeField]
-        private float speed;
-
-        private void Start() {
-            navAgent = GetComponent<MapNavAgent>();
-            navAgent.ChaseTarget = GameObject.Find("kaf").GetComponent<MapNavAgent>();
-        }
-
-        private void Update() {
-        }
-
-        public MapNavAgent NavAgent {
-            get { return navAgent; }
-        }
     }
 }
