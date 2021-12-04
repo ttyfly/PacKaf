@@ -23,49 +23,132 @@ using UnityEditor;
 namespace PacKaf.Editor {
     [CustomEditor(typeof(MapNav2D))]
     public class MapNav2DEditor : UnityEditor.Editor {
+
+        private MapNode selectedNode = null;
+        private int editState;
+
         private void OnSceneGUI() {
             MapNav2D map = (MapNav2D)target;
 
-            Handles.color = Color.red;
+            MapNode clickedNode = null;
+
             if (map.Nodes != null && map.Nodes.Count > 0) {
                 for (int i = 0; i < map.Nodes.Count; i++) {
-                    MapNode node = map.Nodes[i];
-                    foreach (MapEdge edge in node.Edges) {
-                        Handles.DrawLine(node.Position, edge.neighbor.Position);
-                        Handles.DrawSolidArc(
-                            edge.neighbor.Position,
-                            Vector3.back,
-                            node.Position - edge.neighbor.Position,
-                            10,
-                            HandleUtility.GetHandleSize(edge.neighbor.Position) * 0.2f
-                        );
-                        Handles.DrawSolidArc(
-                            edge.neighbor.Position,
-                            Vector3.back,
-                            node.Position - edge.neighbor.Position,
-                            -10,
-                            HandleUtility.GetHandleSize(edge.neighbor.Position) * 0.2f
-                        );
-                    }
 
-                    Handles.Label(node.Position, i.ToString());
+                    MapNode node = map.Nodes[i];
+
+                    node.Edges.RemoveAll((MapEdge edge) => edge.neighborIndex == -1);
+
+                    foreach (MapEdge edge in node.Edges) {
+                        Handles.color = Color.green;
+                        Handles.DrawLine(node.Position, edge.neighbor.Position, 2);
+                        Handles.DrawSolidArc(edge.neighbor.Position, Vector3.back, node.Position - edge.neighbor.Position, 10, map.NodeRadius);
+                        Handles.DrawSolidArc(edge.neighbor.Position, Vector3.back, node.Position - edge.neighbor.Position, -10, map.NodeRadius);
+
+                        Vector2 rel = (edge.neighbor.Position - node.Position).normalized * map.EdgeWidth / 2;
+                        rel.Set(rel.y, -rel.x);
+                        Handles.color = Color.red;
+                        Handles.DrawLine(node.Position + rel, edge.neighbor.Position + rel, 2);
+                        Handles.DrawLine(node.Position - rel, edge.neighbor.Position - rel, 2);
+                    }
 
                     EditorGUI.BeginChangeCheck();
 
-                    Vector2 newPosition = Handles.FreeMoveHandle(
-                        node.Position,
-                        Quaternion.identity,
-                        HandleUtility.GetHandleSize(node.Position) * 0.2f,
-                        Vector3.one * 0.5f,
-                        Handles.CircleHandleCap
-                    );
+                    Handles.color = Color.red;
+                    int id = EditorGUIUtility.GetControlID(FocusType.Passive);
+                    Vector2 newPosition = Handles.FreeMoveHandle(id, node.Position, Quaternion.identity, map.NodeRadius, Vector3.one * 0.5f, Handles.CircleHandleCap);
+
+                    if (id == EditorGUIUtility.hotControl) {
+                        clickedNode = map.Nodes[i];
+                        Handles.color = Color.yellow;
+                    }
+
+                    if (node == selectedNode) {
+                        Handles.color = Color.yellow;
+                    }
+
+                    Handles.DrawWireDisc(newPosition, Vector3.back, map.NodeRadius, 2);
 
                     if (EditorGUI.EndChangeCheck()) {
-                        Undo.RecordObject(map, "Node Position Change");
+                        Undo.RecordObject(map, "Map Node Position Change");
                         node.Position = newPosition;
                     }
                 }
+
+                for (int i = 0; i < map.Nodes.Count; i++) {
+                    Handles.Label(map.Nodes[i].Position, i.ToString());
+                }
             }
+
+            Handles.BeginGUI();
+            GUILayout.BeginVertical("Map Node Editor", "window", GUILayout.Width(200), GUILayout.Height(300));
+
+            if (GUILayout.Button("Add Node")) {
+                Undo.RecordObject(map, "Add Map Node");
+                map.Nodes.Add(new MapNode(map.Nodes[map.Nodes.Count - 1].Position));
+            }
+
+            editState = GUILayout.SelectionGrid(editState, new[] {"Select Node", "Delete Node", "Add Neighbor", "Delete Neighbor"}, 2);
+
+            if (editState == 0 && clickedNode != null) {
+                selectedNode = clickedNode;
+
+            } else if (editState == 1 && clickedNode != null) {
+
+                Undo.RecordObject(map, "Delete Map Node");
+
+                foreach (MapNode node in map.Nodes) {
+                    node.Edges.RemoveAll((MapEdge edge) => edge.neighbor == clickedNode);
+                }
+                map.Nodes.Remove(clickedNode);
+
+                editState = 0;
+                selectedNode = null;
+            }
+
+            if (selectedNode != null) {
+                bool addNeighbor = editState == 2 && clickedNode != null && clickedNode != selectedNode;
+                if (addNeighbor && !selectedNode.HasNeighbor(clickedNode)) {
+                    Undo.RecordObject(map, "Add Map Edge");
+                    selectedNode.Edges.Add(new MapEdge() {
+                        neighborIndex = GetNodeIndex(clickedNode),
+                        neighbor = clickedNode,
+                        costPerUnit = 1,
+                    });
+                }
+
+                bool delNeighbor = editState == 3 && clickedNode != null;
+                if (delNeighbor) {
+                    Undo.RecordObject(map, "Delete Map Edge");
+                    selectedNode.Edges.RemoveAll((MapEdge edge) => edge.neighbor == clickedNode);
+                }
+
+                for (int i = 0; i < selectedNode.Edges.Count; i++) {
+                    MapEdge edge = selectedNode.Edges[i];
+                    EditorGUILayout.Separator();
+                    int neighborIndex = EditorGUILayout.IntField("Neighbor Index", edge.neighborIndex);
+                    float costPerUnit = EditorGUILayout.FloatField("Cost Per Unit", edge.costPerUnit);
+                    selectedNode.Edges[i] = new MapEdge() {
+                        neighborIndex = neighborIndex,
+                        neighbor = map.Nodes[neighborIndex],
+                        costPerUnit = costPerUnit,
+                    };
+                }
+            }
+            GUILayout.EndVertical();
+            Handles.EndGUI();
+        }
+
+        private int GetNodeIndex(MapNode node) {
+            MapNav2D map = (MapNav2D)target;
+
+            for (int i = 0; i < map.Nodes.Count; i++) {
+                if (map.Nodes[i] == node) {
+                    return i;
+                }
+            }
+
+            return -1;
         }
     }
 }

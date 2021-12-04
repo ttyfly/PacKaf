@@ -17,28 +17,20 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using UnityEngine;
-
 namespace PacKaf {
-    public class Game : MonoBehaviour {
-
-        public static Game Instance;
-
-        private Fsm<Game> gameFsm;
-
-        private void Awake() {
-            Instance = this;
+    public class LevelRelaxState : FsmState<GameLevel> {
+        public override void OnEnter(Fsm<GameLevel> fsm) {
+            base.OnEnter(fsm);
+            fsm.Owner.EnemyWander();
+            UnityEngine.Debug.Log("Relax");
         }
 
-        private void Start() {
-            gameFsm = new Fsm<Game>(this, new MenuState(), new PlayingState(), new SplashState());
-            gameFsm.Start<SplashState>();
-        }
+        public override void OnUpdate(Fsm<GameLevel> fsm) {
+            base.OnUpdate(fsm);
 
-        private void Update() {
-            gameFsm.Update();
+            if (TimeSinceEnter > fsm.Owner.WanderingTime) {
+                fsm.ChangeState<LevelHardState>();
+            }
         }
-
-        public GameLevel CurrentLevel { get; set; }
     }
 }

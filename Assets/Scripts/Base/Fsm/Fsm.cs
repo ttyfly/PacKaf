@@ -17,6 +17,7 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using UnityEngine;
 
 namespace PacKaf {
@@ -32,7 +33,7 @@ namespace PacKaf {
         public Fsm(T owner, params FsmState<T>[] states) {
 
             if (states == null || states.Length == 0) {
-                Debug.LogWarningFormat("Instantiate fsm failed: Fsm '{0}' needs at least one state.", this.GetType().Name);
+                Debug.LogWarningFormat("Instantiate fsm failed: Fsm 'Fsm<{0}>' needs at least one state.", typeof(T).Name);
             }
 
             Owner = owner;
@@ -55,7 +56,22 @@ namespace PacKaf {
                     return;
                 }
             }
-            Debug.LogErrorFormat("Start fsm failed: Fsm '{0}' doesn't contain state '{1}'.", this.GetType().Name, typeof(U).Name);
+            Debug.LogErrorFormat("Start fsm failed: Fsm 'Fsm<{0}>' doesn't contain state '{1}'.", typeof(T).Name, typeof(U).Name);
+        }
+
+        /// <summary>
+        /// Start the fsm.
+        /// </summary>
+        /// <param name="stateType">Type of the initial state</param>
+        public void Start(Type stateType) {
+            foreach (FsmState<T> state in states) {
+                if (stateType.IsInstanceOfType(state)) {
+                    CurrentState = state;
+                    CurrentState.OnEnter(this);
+                    return;
+                }
+            }
+            Debug.LogErrorFormat("Start fsm failed: Fsm 'Fsm<{0}>' doesn't contain state '{1}'.", typeof(T).Name, stateType.Name);
         }
 
         /// <summary>
@@ -63,7 +79,7 @@ namespace PacKaf {
         /// </summary>
         public void Update() {
             if (CurrentState == null) {
-                Debug.LogErrorFormat("Update fsm failed: Fsm '{0}' is not started.", this.GetType().Name);
+                Debug.LogErrorFormat("Update fsm failed: Fsm 'Fsm<{0}>' is not started.", typeof(T).Name);
                 return;
             }
             CurrentState.OnUpdate(this);
@@ -86,10 +102,10 @@ namespace PacKaf {
         /// <summary>
         /// Change the state of fsm.
         /// </summary>
-        /// <typeparam name="U">State</typeparam>
+        /// <typeparam name="U">New state</typeparam>
         public void ChangeState<U>() where U: FsmState<T> {
             if (CurrentState == null) {
-                Debug.LogErrorFormat("Change state failed: Fsm '{0}' is not started.", this.GetType().Name);
+                Debug.LogErrorFormat("Change state failed: Fsm 'Fsm<{0}>' is not started.", typeof(T).Name);
                 return;
             }
             CurrentState.OnLeave(this);
@@ -100,7 +116,27 @@ namespace PacKaf {
                     return;
                 }
             }
-            Debug.LogErrorFormat("Change state failed: Fsm '{0}' doesn't contain state '{1}'.", this.GetType().Name, typeof(U).Name);
+            Debug.LogErrorFormat("Change state failed: Fsm 'Fsm<{0}>' doesn't contain state '{1}'.", typeof(T).Name, typeof(U).Name);
+        }
+
+        /// <summary>
+        /// Change the state of fsm.
+        /// </summary>
+        /// <param name="stateType">Type of the new state</param>
+        public void ChangeState(Type stateType) {
+            if (CurrentState == null) {
+                Debug.LogErrorFormat("Change state failed: Fsm 'Fsm<{0}>' is not started.", typeof(T).Name);
+                return;
+            }
+            CurrentState.OnLeave(this);
+            foreach (FsmState<T> state in states) {
+                if (stateType.IsInstanceOfType(state)) {
+                    CurrentState = state;
+                    CurrentState.OnEnter(this);
+                    return;
+                }
+            }
+            Debug.LogErrorFormat("Change state failed: Fsm 'Fsm<{0}>' doesn't contain state '{1}'.", typeof(T).Name, stateType.Name);
         }
 
         /// <summary>

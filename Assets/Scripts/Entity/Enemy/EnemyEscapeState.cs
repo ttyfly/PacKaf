@@ -17,28 +17,16 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using UnityEngine;
-
 namespace PacKaf {
-    public class Game : MonoBehaviour {
+    public class EnemyEscapeState : FsmState<Enemy> {
+        public override void OnUpdate(Fsm<Enemy> fsm) {
+            base.OnUpdate(fsm);
 
-        public static Game Instance;
+            fsm.Owner.NavAgent.EscapeFromAgent(fsm.Owner.TargetAgent);
 
-        private Fsm<Game> gameFsm;
-
-        private void Awake() {
-            Instance = this;
+            if (TimeSinceEnter >= fsm.Owner.EscapeTime || fsm.Owner.Caught) {
+                fsm.ChangeState<EnemyWanderingState>();
+            }
         }
-
-        private void Start() {
-            gameFsm = new Fsm<Game>(this, new MenuState(), new PlayingState(), new SplashState());
-            gameFsm.Start<SplashState>();
-        }
-
-        private void Update() {
-            gameFsm.Update();
-        }
-
-        public GameLevel CurrentLevel { get; set; }
     }
 }

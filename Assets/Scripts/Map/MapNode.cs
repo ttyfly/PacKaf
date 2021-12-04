@@ -30,6 +30,11 @@ namespace PacKaf {
         [SerializeField]
         private List<MapEdge> edges;
 
+        public MapNode(Vector2 position) {
+            this.position = position;
+            edges = new List<MapEdge>();
+        }
+
         public static float Distance(MapNode node1, MapNode node2) {
             return Vector2.Distance(node1.Position, node2.Position);
         }
@@ -56,17 +61,21 @@ namespace PacKaf {
             throw new System.Exception("No such neighbor.");
         }
 
-        public MapEdge GetNearestEdge(MapNavAgent agent) {
+        public MapEdge GetNearestEdge(MapNavAgent agent, out float minDistance) {
             MapEdge nearestEdge = default(MapEdge);
-            float minDist = float.PositiveInfinity;
+            minDistance = float.PositiveInfinity;
             foreach (MapEdge edge in edges) {
                 float dist = agent.DistanceToEdge(this, edge.neighbor);
-                if (dist < minDist) {
+                if (dist < minDistance) {
                     nearestEdge = edge;
-                    minDist = dist;
+                    minDistance = dist;
                 }
             }
             return nearestEdge;
+        }
+
+        public MapEdge GetNearestEdge(MapNavAgent agent) {
+            return GetNearestEdge(agent, out _);
         }
 
         public void Clear() {

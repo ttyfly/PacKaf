@@ -18,7 +18,15 @@
  */
 
 namespace PacKaf {
-    public class CharacterEscapeState : FsmState<Character> {
+    public class EnemyChasingState : FsmState<Enemy> {
+        public override void OnUpdate(Fsm<Enemy> fsm) {
+            base.OnUpdate(fsm);
 
+            if (fsm.Owner.State == Enemy.EnemyState.Escaping) {
+                fsm.ChangeState<EnemyEscapeState>();
+            } else if (fsm.Owner.State == Enemy.EnemyState.Wandering) {
+                fsm.ChangeState<EnemyWanderingState>();
+            }
+        }
     }
 }

@@ -20,6 +20,7 @@
 using UnityEngine;
 
 namespace PacKaf {
+    [RequireComponent(typeof(MapNavAgent))]
     public class Player : MonoBehaviour {
 
         [SerializeField]

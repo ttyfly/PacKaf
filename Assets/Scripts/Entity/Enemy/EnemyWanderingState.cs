@@ -18,10 +18,30 @@
  */
 
 namespace PacKaf {
-    public class CharacterChaseState : FsmState<Character> {
-        public override void OnEnter(Fsm<Character> fsm){
+    public class EnemyWanderingState : FsmState<Enemy> {
+
+        private float changeTime;
+
+        public override void OnEnter(Fsm<Enemy> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.NavAgent.enabled = true;
+            changeTime = 0;
+            fsm.Owner.NavAgent.GotoRandomNode();
         }
+
+        public override void OnUpdate(Fsm<Enemy> fsm) {
+            base.OnUpdate(fsm);
+
+            if (fsm.Owner.State == Enemy.EnemyState.Escaping) {
+                fsm.ChangeState<EnemyEscapeState>();
+            } else if (fsm.Owner.State == Enemy.EnemyState.Chasing) {
+                fsm.ChangeState(fsm.Owner.ChasingStateType);
+            }
+
+            if (TimeSinceEnter - changeTime > 5) {
+                fsm.Owner.NavAgent.GotoRandomNode();
+                changeTime = TimeSinceEnter;
+            }
+        }
+
     }
 }

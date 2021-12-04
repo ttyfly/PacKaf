@@ -26,6 +26,12 @@ namespace PacKaf {
     public class MapNav2D : MonoBehaviour, ISerializationCallbackReceiver {
 
         [SerializeField]
+        private float edgeWidth;
+
+        [SerializeField]
+        private float nodeRadius;
+
+        [SerializeField]
         private List<MapNode> nodes;
 
         private PriorityQueue<MapNode> nodePQ;
@@ -39,6 +45,10 @@ namespace PacKaf {
         /// 序列化前回调。
         /// </summary>
         public void OnBeforeSerialize() {
+            if (nodes == null) {
+                return;
+            }
+
             foreach (MapNode node in nodes) {
                 for (int i = 0; i < node.Edges.Count; i++) {
                     MapEdge edge = node.Edges[i];
@@ -52,6 +62,10 @@ namespace PacKaf {
         /// 反序列化后回调。
         /// </summary>
         public void OnAfterDeserialize() {
+            if (nodes == null) {
+                return;
+            }
+
             foreach (MapNode node in nodes) {
                 node.ClearFlags();
                 for (int i = 0; i < node.Edges.Count; i++) {
@@ -93,8 +107,10 @@ namespace PacKaf {
 
             ClearNodeFlags();
 
+            sourceNode1.CostFlag = initialCost1;
             nodePQ.Enqueue(sourceNode1, (int)(initialCost1 * 100));
             if (sourceNode2 != null) {
+                sourceNode2.CostFlag = initialCost2;
                 nodePQ.Enqueue(sourceNode2, (int)(initialCost2 * 100));
             }
 
@@ -123,6 +139,12 @@ namespace PacKaf {
             nodePQ.Clear();
         }
 
+        /// <summary>
+        /// 计算与目标节点最近的源节点。<br/>
+        /// 需要先调用 TagReachableNodes() 完成节点标记。
+        /// </summary>
+        /// <param name="targetNode">目标节点</param>
+        /// <returns>源节点</returns>
         public MapNode GetSourceNode(MapNode targetNode) {
 
             if (targetNode == null) {
@@ -143,6 +165,12 @@ namespace PacKaf {
             return targetNode;
         }
 
+        /// <summary>
+        /// 计算与目标节点最近的（源节点的）邻居节点。<br/>
+        /// 需要先调用 TagReachableNodes() 完成节点标记。
+        /// </summary>
+        /// <param name="targetNode">目标节点</param>
+        /// <returns>邻居节点</returns>
         public MapNode GetFirstNode(MapNode targetNode) {
 
             if (targetNode == null) {
@@ -159,259 +187,259 @@ namespace PacKaf {
             throw new InvalidOperationException("Cannot get first node because target node is not reachable.");
         }
 
-        /// <summary>
-        /// 计算下一跳的节点。<br/>
-        /// 使用堆优化的 dijkstra 算法。
-        /// </summary>
-        /// <param name="sourceNode">源节点</param>
-        /// <param name="targetNode">目标节点</param>
-        /// <returns>下一跳的节点</returns>
-        public MapNode NextNode(MapNode sourceNode, MapNode targetNode) {
+        // /// <summary>
+        // /// 计算下一跳的节点。<br/>
+        // /// 使用堆优化的 dijkstra 算法。
+        // /// </summary>
+        // /// <param name="sourceNode">源节点</param>
+        // /// <param name="targetNode">目标节点</param>
+        // /// <returns>下一跳的节点</returns>
+        // public MapNode NextNode(MapNode sourceNode, MapNode targetNode) {
 
-            if (sourceNode == null) {
-                throw new ArgumentNullException(nameof(sourceNode));
-            }
+        //     if (sourceNode == null) {
+        //         throw new ArgumentNullException(nameof(sourceNode));
+        //     }
 
-            if (targetNode == null) {
-                throw new ArgumentNullException(nameof(targetNode));
-            }
+        //     if (targetNode == null) {
+        //         throw new ArgumentNullException(nameof(targetNode));
+        //     }
 
-            if (sourceNode == targetNode) {
-                return targetNode;
-            }
+        //     if (sourceNode == targetNode) {
+        //         return targetNode;
+        //     }
 
-            PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
-            nodePQ.Enqueue(sourceNode, 0);
+        //     PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
+        //     nodePQ.Enqueue(sourceNode, 0);
 
-            while (!nodePQ.Empty) {
-                int priority;
-                MapNode node = nodePQ.Dequeue(out priority);
+        //     while (!nodePQ.Empty) {
+        //         int priority;
+        //         MapNode node = nodePQ.Dequeue(out priority);
 
-                if (node.VisitFlag) {
-                    continue;
-                }
-                node.VisitFlag = true;
+        //         if (node.VisitFlag) {
+        //             continue;
+        //         }
+        //         node.VisitFlag = true;
 
-                foreach (MapEdge edge in node.Edges) {
-                    if (!edge.neighbor.VisitFlag) {
-                        float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
-                        if (newCost < edge.neighbor.CostFlag) {
-                            edge.neighbor.ParentFlag = node;
-                            edge.neighbor.CostFlag = newCost;
-                            nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
-                        }
-                    }
-                }
-            }
+        //         foreach (MapEdge edge in node.Edges) {
+        //             if (!edge.neighbor.VisitFlag) {
+        //                 float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
+        //                 if (newCost < edge.neighbor.CostFlag) {
+        //                     edge.neighbor.ParentFlag = node;
+        //                     edge.neighbor.CostFlag = newCost;
+        //                     nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            while (targetNode.ParentFlag != sourceNode) {
-                targetNode = targetNode.ParentFlag;
-                if (targetNode == null) {
-                    throw new Exception("Cannot get next node because target node is not reachable.");
-                }
-            }
+        //     while (targetNode.ParentFlag != sourceNode) {
+        //         targetNode = targetNode.ParentFlag;
+        //         if (targetNode == null) {
+        //             throw new Exception("Cannot get next node because target node is not reachable.");
+        //         }
+        //     }
 
-            ClearNodeFlags();
+        //     ClearNodeFlags();
 
-            return targetNode;
-        }
+        //     return targetNode;
+        // }
 
-        /// <summary>
-        /// 计算下一跳的节点。<br/>
-        /// 使用堆优化的 dijkstra 算法。
-        /// </summary>
-        /// <param name="sourceNode">源节点</param>
-        /// <param name="targetAgent">目标 agent</param>
-        /// <returns>下一跳的节点</returns>
-        public MapNode NextNode(MapNode sourceNode, MapNavAgent targetAgent) {
+        // /// <summary>
+        // /// 计算下一跳的节点。<br/>
+        // /// 使用堆优化的 dijkstra 算法。
+        // /// </summary>
+        // /// <param name="sourceNode">源节点</param>
+        // /// <param name="targetAgent">目标 agent</param>
+        // /// <returns>下一跳的节点</returns>
+        // public MapNode NextNode(MapNode sourceNode, MapNavAgent targetAgent) {
 
-            if (targetAgent == null) {
-                throw new ArgumentNullException(nameof(targetAgent));
-            }
+        //     if (targetAgent == null) {
+        //         throw new ArgumentNullException(nameof(targetAgent));
+        //     }
 
-            if (sourceNode == null) {
-                throw new ArgumentNullException(nameof(sourceNode));
-            }
+        //     if (sourceNode == null) {
+        //         throw new ArgumentNullException(nameof(sourceNode));
+        //     }
 
-            // 在一条边上
-            if (sourceNode == targetAgent.CurrentNode) {
-                return targetAgent.NextNode;
-            }
-            if (sourceNode == targetAgent.NextNode && targetAgent.BackwardCostPerUnit != float.PositiveInfinity) {
-                return targetAgent.CurrentNode;
-            }
+        //     // 在一条边上
+        //     if (sourceNode == targetAgent.CurrentNode) {
+        //         return targetAgent.NextNode;
+        //     }
+        //     if (sourceNode == targetAgent.NextNode && targetAgent.BackwardCostPerUnit != float.PositiveInfinity) {
+        //         return targetAgent.CurrentNode;
+        //     }
 
-            PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
-            nodePQ.Enqueue(sourceNode, 0);
+        //     PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
+        //     nodePQ.Enqueue(sourceNode, 0);
 
-            while (!nodePQ.Empty) {
-                int priority;
-                MapNode node = nodePQ.Dequeue(out priority);
+        //     while (!nodePQ.Empty) {
+        //         int priority;
+        //         MapNode node = nodePQ.Dequeue(out priority);
 
-                if (node.VisitFlag) {
-                    continue;
-                }
-                node.VisitFlag = true;
+        //         if (node.VisitFlag) {
+        //             continue;
+        //         }
+        //         node.VisitFlag = true;
 
-                foreach (MapEdge edge in node.Edges) {
-                    if (!edge.neighbor.VisitFlag) {
-                        float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
-                        if (newCost < edge.neighbor.CostFlag) {
-                            edge.neighbor.ParentFlag = node;
-                            edge.neighbor.CostFlag = newCost;
-                            nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
-                        }
-                    }
-                }
-            }
+        //         foreach (MapEdge edge in node.Edges) {
+        //             if (!edge.neighbor.VisitFlag) {
+        //                 float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
+        //                 if (newCost < edge.neighbor.CostFlag) {
+        //                     edge.neighbor.ParentFlag = node;
+        //                     edge.neighbor.CostFlag = newCost;
+        //                     nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            float nextNodeCost = targetAgent.NextNode.CostFlag + targetAgent.NextNodeToAgentCost;
-            float currentNodeCost = targetAgent.CurrentNode.CostFlag + targetAgent.CurrentNodeToAgentCost;
-            MapNode targetNode = nextNodeCost < currentNodeCost ? targetAgent.NextNode : targetAgent.CurrentNode;
+        //     float nextNodeCost = targetAgent.NextNode.CostFlag + targetAgent.NextNodeToAgentCost;
+        //     float currentNodeCost = targetAgent.CurrentNode.CostFlag + targetAgent.CurrentNodeToAgentCost;
+        //     MapNode targetNode = nextNodeCost < currentNodeCost ? targetAgent.NextNode : targetAgent.CurrentNode;
 
-            while (targetNode.ParentFlag != sourceNode) {
-                targetNode = targetNode.ParentFlag;
-                if (targetNode == null) {
-                    throw new Exception("Cannot get next node because target node is not reachable.");
-                }
-            }
+        //     while (targetNode.ParentFlag != sourceNode) {
+        //         targetNode = targetNode.ParentFlag;
+        //         if (targetNode == null) {
+        //             throw new Exception("Cannot get next node because target node is not reachable.");
+        //         }
+        //     }
 
-            ClearNodeFlags();
+        //     ClearNodeFlags();
 
-            return targetNode;
-        }
+        //     return targetNode;
+        // }
 
-        /// <summary>
-        /// 计算下一跳的节点。<br/>
-        /// 使用堆优化的 dijkstra 算法。
-        /// </summary>
-        /// <param name="sourceAgent">源 agent</param>
-        /// <param name="targetNode">目标节点</param>
-        /// <returns>下一跳的节点</returns>
-        public MapNode NextNode(MapNavAgent sourceAgent, MapNode targetNode) {
+        // /// <summary>
+        // /// 计算下一跳的节点。<br/>
+        // /// 使用堆优化的 dijkstra 算法。
+        // /// </summary>
+        // /// <param name="sourceAgent">源 agent</param>
+        // /// <param name="targetNode">目标节点</param>
+        // /// <returns>下一跳的节点</returns>
+        // public MapNode NextNode(MapNavAgent sourceAgent, MapNode targetNode) {
 
-            if (targetNode == null) {
-                throw new ArgumentNullException(nameof(targetNode));
-            }
+        //     if (targetNode == null) {
+        //         throw new ArgumentNullException(nameof(targetNode));
+        //     }
 
-            if (sourceAgent == null) {
-                throw new ArgumentNullException(nameof(sourceAgent));
-            }
+        //     if (sourceAgent == null) {
+        //         throw new ArgumentNullException(nameof(sourceAgent));
+        //     }
 
-            PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
-            nodePQ.Enqueue(sourceAgent.CurrentNode, (int)(sourceAgent.AgentToCurrentNodeCost * 100));
-            nodePQ.Enqueue(sourceAgent.NextNode, (int)(sourceAgent.AgentToNextNodeCost * 100));
+        //     PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
+        //     nodePQ.Enqueue(sourceAgent.CurrentNode, (int)(sourceAgent.AgentToCurrentNodeCost * 100));
+        //     nodePQ.Enqueue(sourceAgent.NextNode, (int)(sourceAgent.AgentToNextNodeCost * 100));
 
-            while (!nodePQ.Empty) {
-                int priority;
-                MapNode node = nodePQ.Dequeue(out priority);
+        //     while (!nodePQ.Empty) {
+        //         int priority;
+        //         MapNode node = nodePQ.Dequeue(out priority);
 
-                if (node.VisitFlag) {
-                    continue;
-                }
-                node.VisitFlag = true;
+        //         if (node.VisitFlag) {
+        //             continue;
+        //         }
+        //         node.VisitFlag = true;
 
-                foreach (MapEdge edge in node.Edges) {
-                    if (!edge.neighbor.VisitFlag) {
-                        float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
-                        if (newCost < edge.neighbor.CostFlag) {
-                            edge.neighbor.ParentFlag = node;
-                            edge.neighbor.CostFlag = newCost;
-                            nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
-                        }
-                    }
-                }
-            }
+        //         foreach (MapEdge edge in node.Edges) {
+        //             if (!edge.neighbor.VisitFlag) {
+        //                 float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
+        //                 if (newCost < edge.neighbor.CostFlag) {
+        //                     edge.neighbor.ParentFlag = node;
+        //                     edge.neighbor.CostFlag = newCost;
+        //                     nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            while (targetNode != sourceAgent.CurrentNode && targetNode != sourceAgent.NextNode) {
-                targetNode = targetNode.ParentFlag;
-                if (targetNode == null) {
-                    throw new Exception("Cannot get next node because target node is not reachable.");
-                }
-            }
+        //     while (targetNode != sourceAgent.CurrentNode && targetNode != sourceAgent.NextNode) {
+        //         targetNode = targetNode.ParentFlag;
+        //         if (targetNode == null) {
+        //             throw new Exception("Cannot get next node because target node is not reachable.");
+        //         }
+        //     }
 
-            ClearNodeFlags();
+        //     ClearNodeFlags();
 
-            return targetNode;
-        }
+        //     return targetNode;
+        // }
 
-        /// <summary>
-        /// 计算下一跳的节点。<br/>
-        /// 使用堆优化的 dijkstra 算法。
-        /// </summary>
-        /// <param name="sourceAgent">源 agent</param>
-        /// <param name="targetAgent">目标 agent</param>
-        /// <returns>下一跳的节点</returns>
-        public MapNode NextNode(MapNavAgent sourceAgent, MapNavAgent targetAgent) {
+        // /// <summary>
+        // /// 计算下一跳的节点。<br/>
+        // /// 使用堆优化的 dijkstra 算法。
+        // /// </summary>
+        // /// <param name="sourceAgent">源 agent</param>
+        // /// <param name="targetAgent">目标 agent</param>
+        // /// <returns>下一跳的节点</returns>
+        // public MapNode NextNode(MapNavAgent sourceAgent, MapNavAgent targetAgent) {
 
-            if (targetAgent == null) {
-                throw new ArgumentNullException(nameof(targetAgent));
-            }
+        //     if (targetAgent == null) {
+        //         throw new ArgumentNullException(nameof(targetAgent));
+        //     }
 
-            if (sourceAgent == null) {
-                throw new ArgumentNullException(nameof(sourceAgent));
-            }
+        //     if (sourceAgent == null) {
+        //         throw new ArgumentNullException(nameof(sourceAgent));
+        //     }
 
-            if (sourceAgent == targetAgent) {
-                throw new InvalidOperationException("An agent cannot chase itself (unless it's a dog).");
-            }
+        //     if (sourceAgent == targetAgent) {
+        //         throw new InvalidOperationException("An agent cannot chase itself (unless it's a dog).");
+        //     }
 
-            // 在同一条边上
-            if (sourceAgent.CurrentNode == targetAgent.CurrentNode && sourceAgent.NextNode == targetAgent.NextNode) {
-                if (sourceAgent.CurrentNodeToAgentCost < targetAgent.CurrentNodeToAgentCost) {
-                    return sourceAgent.NextNode;
-                } else if (sourceAgent.BackwardCostPerUnit != float.PositiveInfinity) {
-                    return sourceAgent.CurrentNode;
-                }
-            }
-            if (sourceAgent.CurrentNode == targetAgent.NextNode && sourceAgent.NextNode == targetAgent.CurrentNode) {
-                if (sourceAgent.CurrentNodeToAgentCost < targetAgent.AgentToNextNodeCost) {
-                    return sourceAgent.NextNode;
-                } else if (sourceAgent.BackwardCostPerUnit != float.PositiveInfinity) {
-                    return sourceAgent.CurrentNode;
-                }
-            }
+        //     // 在同一条边上
+        //     if (sourceAgent.CurrentNode == targetAgent.CurrentNode && sourceAgent.NextNode == targetAgent.NextNode) {
+        //         if (sourceAgent.CurrentNodeToAgentCost < targetAgent.CurrentNodeToAgentCost) {
+        //             return sourceAgent.NextNode;
+        //         } else if (sourceAgent.BackwardCostPerUnit != float.PositiveInfinity) {
+        //             return sourceAgent.CurrentNode;
+        //         }
+        //     }
+        //     if (sourceAgent.CurrentNode == targetAgent.NextNode && sourceAgent.NextNode == targetAgent.CurrentNode) {
+        //         if (sourceAgent.CurrentNodeToAgentCost < targetAgent.AgentToNextNodeCost) {
+        //             return sourceAgent.NextNode;
+        //         } else if (sourceAgent.BackwardCostPerUnit != float.PositiveInfinity) {
+        //             return sourceAgent.CurrentNode;
+        //         }
+        //     }
 
-            PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
-            nodePQ.Enqueue(sourceAgent.CurrentNode, (int)(sourceAgent.AgentToCurrentNodeCost * 100));
-            nodePQ.Enqueue(sourceAgent.NextNode, (int)(sourceAgent.AgentToNextNodeCost * 100));
+        //     PriorityQueue<MapNode> nodePQ = new PriorityQueue<MapNode>(false);
+        //     nodePQ.Enqueue(sourceAgent.CurrentNode, (int)(sourceAgent.AgentToCurrentNodeCost * 100));
+        //     nodePQ.Enqueue(sourceAgent.NextNode, (int)(sourceAgent.AgentToNextNodeCost * 100));
 
-            while (!nodePQ.Empty) {
-                int priority;
-                MapNode node = nodePQ.Dequeue(out priority);
+        //     while (!nodePQ.Empty) {
+        //         int priority;
+        //         MapNode node = nodePQ.Dequeue(out priority);
 
-                if (node.VisitFlag) {
-                    continue;
-                }
-                node.VisitFlag = true;
+        //         if (node.VisitFlag) {
+        //             continue;
+        //         }
+        //         node.VisitFlag = true;
 
-                foreach (MapEdge edge in node.Edges) {
-                    if (!edge.neighbor.VisitFlag) {
-                        float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
-                        if (newCost < edge.neighbor.CostFlag) {
-                            edge.neighbor.ParentFlag = node;
-                            edge.neighbor.CostFlag = newCost;
-                            nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
-                        }
-                    }
-                }
-            }
+        //         foreach (MapEdge edge in node.Edges) {
+        //             if (!edge.neighbor.VisitFlag) {
+        //                 float newCost = node.GetEdgeCost(edge.neighbor) + priority / 100;
+        //                 if (newCost < edge.neighbor.CostFlag) {
+        //                     edge.neighbor.ParentFlag = node;
+        //                     edge.neighbor.CostFlag = newCost;
+        //                     nodePQ.Enqueue(edge.neighbor, (int)(newCost * 100));
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            float nextNodeCost = targetAgent.NextNode.CostFlag + targetAgent.NextNodeToAgentCost;
-            float currentNodeCost = targetAgent.CurrentNode.CostFlag + targetAgent.CurrentNodeToAgentCost;
-            MapNode targetNode = nextNodeCost < currentNodeCost ? targetAgent.NextNode : targetAgent.CurrentNode;
+        //     float nextNodeCost = targetAgent.NextNode.CostFlag + targetAgent.NextNodeToAgentCost;
+        //     float currentNodeCost = targetAgent.CurrentNode.CostFlag + targetAgent.CurrentNodeToAgentCost;
+        //     MapNode targetNode = nextNodeCost < currentNodeCost ? targetAgent.NextNode : targetAgent.CurrentNode;
 
-            while (targetNode != sourceAgent.CurrentNode && targetNode != sourceAgent.NextNode) {
-                targetNode = targetNode.ParentFlag;
-                if (targetNode == null) {
-                    throw new Exception("Cannot get next node because target agent is not reachable.");
-                }
-            }
+        //     while (targetNode != sourceAgent.CurrentNode && targetNode != sourceAgent.NextNode) {
+        //         targetNode = targetNode.ParentFlag;
+        //         if (targetNode == null) {
+        //             throw new Exception("Cannot get next node because target agent is not reachable.");
+        //         }
+        //     }
 
-            ClearNodeFlags();
+        //     ClearNodeFlags();
 
-            return targetNode;
-        }
+        //     return targetNode;
+        // }
 
         public MapNode GetNearestNode(MapNavAgent agent) {
             MapNode nearestNode = null;
@@ -426,6 +454,29 @@ namespace PacKaf {
             return nearestNode;
         }
 
+        /// <summary>
+        /// 获得最近的边。COSTLY.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="agent"></param>
+        /// <returns></returns>
+        public (MapNode source, MapEdge edge) GetNearestEdge(MapNavAgent agent) {
+            MapNode nearestNode = null;
+            MapEdge nearestEdge = new MapEdge();
+            float minDist = float.PositiveInfinity;
+            foreach (MapNode node in nodes) {
+                foreach (MapEdge edge in node.Edges) {
+                    float dist = agent.DistanceToEdge(node, edge.neighbor);
+                    if (dist < minDist) {
+                        nearestNode = node;
+                        nearestEdge = edge;
+                        minDist = dist;
+                    }
+                }
+            }
+            return (nearestNode, nearestEdge);
+        }
+
         public void ClearNodeFlags() {
             foreach (MapNode node in nodes) {
                 node.ClearFlags();
@@ -434,6 +485,14 @@ namespace PacKaf {
 
         public List<MapNode> Nodes {
             get { return nodes; }
+        }
+
+        public float EdgeWidth {
+            get { return edgeWidth; }
+        }
+
+        public float NodeRadius {
+            get { return nodeRadius; }
         }
     }
 }

@@ -17,26 +17,20 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using UnityEngine;
-
 namespace PacKaf {
-    public class Character : MonoBehaviour {
-        private Fsm<Character> fsm;
-        private MapNavAgent navAgent;
-
-        [SerializeField]
-        private float speed;
-
-        private void Start() {
-            navAgent = GetComponent<MapNavAgent>();
-            navAgent.ChaseTarget = GameObject.Find("kaf").GetComponent<MapNavAgent>();
+    public class LevelHardState : FsmState<GameLevel> {
+        public override void OnEnter(Fsm<GameLevel> fsm) {
+            base.OnEnter(fsm);
+            fsm.Owner.EnemyChase();
+            UnityEngine.Debug.Log("Hard");
         }
 
-        private void Update() {
-        }
+        public override void OnUpdate(Fsm<GameLevel> fsm) {
+            base.OnUpdate(fsm);
 
-        public MapNavAgent NavAgent {
-            get { return navAgent; }
+            if (TimeSinceEnter > fsm.Owner.ChasingTime) {
+                fsm.ChangeState<LevelRelaxState>();
+            }
         }
     }
 }
