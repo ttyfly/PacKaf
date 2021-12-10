@@ -17,16 +17,15 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Linq;
 using UnityEngine;
 
 namespace PacKaf {
     public class GameLevel : MonoBehaviour {
 
-        [SerializeField]
-        private Player player;
-
-        [SerializeField]
-        private Enemy[] enemys;
+        public enum LevelState {
+            Chasing, Wandering, Escaping, Failed
+        }
 
         [SerializeField]
         private float wanderingTime;
@@ -37,12 +36,21 @@ namespace PacKaf {
         [SerializeField]
         private float escapeTime;
 
+        private Player player;
+        private Enemy[] enemys;
+        private GameObject[] pickableItems;
         private Fsm<GameLevel> fsm;
 
+        public LevelState State { get; set; }
+
         private void Awake() {
-            if (Game.Instance != null) {
-                Game.Instance.CurrentLevel = this;
-            }
+            // if (Game.Instance != null) {
+            //     Game.Instance.CurrentLevel = this;
+            // }
+
+            player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            enemys = GameObject.FindGameObjectsWithTag("Enemy").Select((GameObject obj) => obj.GetComponent<Enemy>()).ToArray<Enemy>();
+            pickableItems = GameObject.FindGameObjectsWithTag("Coin").Concat<GameObject>(GameObject.FindGameObjectsWithTag("Cake")).ToArray<GameObject>();
 
             foreach (Enemy enemy in enemys) {
                 enemy.TargetAgent = player.GetComponent<MapNavAgent>();
@@ -50,30 +58,38 @@ namespace PacKaf {
         }
 
         private void Start() {
-            fsm = new Fsm<GameLevel>(this, new LevelRelaxState(), new LevelHardState());
-            fsm.Start<LevelRelaxState>();
+            if (Game.Instance != null) {
+                Game.Instance.CurrentLevel = this;
+            }
+
+            fsm = new Fsm<GameLevel>(this, new LevelChasingState(), new LevelEscapingState(), new LevelWanderingState(), new LevelFailedState());
+            fsm.Start<LevelWanderingState>();
         }
 
         private void Update() {
             fsm.Update();
-        }
 
-        public void EnemyEscape() {
-            foreach (Enemy enemy in enemys) {
-                enemy.State = Enemy.EnemyState.Escaping;
+            int activeCount = 0;
+            foreach (GameObject pickableItem in pickableItems) {
+                if (pickableItem.activeInHierarchy) {
+                    activeCount++;
+                }
+            }
+            if (activeCount == 0) {
+                LevelPass();
             }
         }
 
-        public void EnemyWander() {
-            foreach (Enemy enemy in enemys) {
-                enemy.State = Enemy.EnemyState.Wandering;
-            }
+        public void EnterEscapeState() {
+            fsm.ChangeState<LevelEscapingState>();
         }
 
-        public void EnemyChase() {
-            foreach (Enemy enemy in enemys) {
-                enemy.State = Enemy.EnemyState.Chasing;
-            }
+        public void LevelFail() {
+            fsm.ChangeState<LevelFailedState>();
+        }
+
+        public void LevelPass() {
+            Debug.Log("ok");
         }
 
         public float WanderingTime {

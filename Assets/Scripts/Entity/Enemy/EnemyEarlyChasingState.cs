@@ -28,8 +28,6 @@ namespace PacKaf {
 
             intermediateNode = fsm.Owner.TargetAgent.NextNode;
             afterIntermediateNode = false;
-
-            fsm.Owner.NavAgent.ControlMode = MapNavAgent.AgentControlMode.Active;
             fsm.Owner.NavAgent.SetTarget(intermediateNode);
         }
 

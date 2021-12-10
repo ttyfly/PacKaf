@@ -40,5 +40,6 @@ namespace PacKaf {
         }
 
         public GameLevel CurrentLevel { get; set; }
+        public int Score { get; set; }
     }
 }

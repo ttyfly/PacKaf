@@ -78,6 +78,30 @@ namespace PacKaf {
             return GetNearestEdge(agent, out _);
         }
 
+        public MapNode GetMaxCostNeighbor(MapNode exclusion = null) {
+            float maxCost = -1;
+            MapNode maxNeighbor = null;
+            foreach (MapEdge edge in edges) {
+                if (edge.neighbor.CostFlag > maxCost && edge.neighbor != exclusion) {
+                    maxCost = edge.neighbor.CostFlag;
+                    maxNeighbor = edge.neighbor;
+                }
+            }
+            return maxNeighbor;
+        }
+
+        public MapNode GetMinCostNeighbor(MapNode exclusion = null) {
+            float minCost = float.PositiveInfinity;
+            MapNode minNeighbor = null;
+            foreach (MapEdge edge in edges) {
+                if (edge.neighbor.CostFlag < minCost && edge.neighbor != exclusion) {
+                    minCost = edge.neighbor.CostFlag;
+                    minNeighbor = edge.neighbor;
+                }
+            }
+            return minNeighbor;
+        }
+
         public void Clear() {
             Edges.Clear();
             ClearFlags();

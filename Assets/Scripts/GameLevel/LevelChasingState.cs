@@ -18,29 +18,19 @@
  */
 
 namespace PacKaf {
-    public class EnemyShyChasingState : EnemyChasingState {
-
-        private float minDistance = 3;
-        private float maxDistance = 5;
-
-        public override void OnEnter(Fsm<Enemy> fsm) {
+    public class LevelChasingState : FsmState<GameLevel> {
+        public override void OnEnter(Fsm<GameLevel> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.NavAgent.SetTarget(fsm.Owner.TargetAgent);
+            fsm.Owner.State = GameLevel.LevelState.Chasing;
+            UnityEngine.Debug.Log("Chasing");
         }
 
-        public override void OnUpdate(Fsm<Enemy> fsm) {
-            MapNavAgent agent = fsm.Owner.NavAgent;
-            MapNavAgent target = fsm.Owner.TargetAgent;
-
-            float distance = agent.DistanceToAgent(fsm.Owner.TargetAgent);
-
-            if (distance > maxDistance) {
-                fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
-            } else if (distance < minDistance) {
-                fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Escaping;
-            }
-
+        public override void OnUpdate(Fsm<GameLevel> fsm) {
             base.OnUpdate(fsm);
+
+            if (TimeSinceEnter > fsm.Owner.ChasingTime) {
+                fsm.ChangeState<LevelWanderingState>();
+            }
         }
     }
 }

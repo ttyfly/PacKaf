@@ -17,31 +17,36 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using UnityEngine;
+
 namespace PacKaf {
     public class EnemyWanderingState : FsmState<Enemy> {
 
-        private float changeTime;
-
         public override void OnEnter(Fsm<Enemy> fsm) {
             base.OnEnter(fsm);
-            changeTime = 0;
-            fsm.Owner.NavAgent.GotoRandomNode();
+            fsm.Owner.NavAgent.SetTarget(GetNextRandomNode(fsm.Owner.NavAgent));
         }
 
         public override void OnUpdate(Fsm<Enemy> fsm) {
             base.OnUpdate(fsm);
 
-            if (fsm.Owner.State == Enemy.EnemyState.Escaping) {
-                fsm.ChangeState<EnemyEscapeState>();
-            } else if (fsm.Owner.State == Enemy.EnemyState.Chasing) {
-                fsm.ChangeState(fsm.Owner.ChasingStateType);
+            if (fsm.Owner.NavAgent.IsOnTargetNode) {
+                fsm.Owner.NavAgent.SetTarget(GetNextRandomNode(fsm.Owner.NavAgent));
             }
 
-            if (TimeSinceEnter - changeTime > 5) {
-                fsm.Owner.NavAgent.GotoRandomNode();
-                changeTime = TimeSinceEnter;
+            if (fsm.Owner.Caught) {
+                Game.Instance.CurrentLevel.LevelFail();
+            }
+
+            switch (Game.Instance.CurrentLevel.State) {
+                case GameLevel.LevelState.Chasing: fsm.ChangeState<EnemyChasingState>(); break;
+                case GameLevel.LevelState.Failed: fsm.ChangeState<EnemyStopState>(); break;
+                case GameLevel.LevelState.Escaping: fsm.ChangeState<EnemyEscapeState>(); break;
             }
         }
 
+        private MapNode GetNextRandomNode(MapNavAgent agent) {
+            return agent.NextNode.Edges[Random.Range(0, agent.NextNode.Edges.Count)].neighbor;
+        }
     }
 }

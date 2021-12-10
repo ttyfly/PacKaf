@@ -18,29 +18,25 @@
  */
 
 namespace PacKaf {
-    public class EnemyShyChasingState : EnemyChasingState {
-
-        private float minDistance = 3;
-        private float maxDistance = 5;
-
+    public class EnemyStopState : FsmState<Enemy> {
         public override void OnEnter(Fsm<Enemy> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.NavAgent.SetTarget(fsm.Owner.TargetAgent);
+            fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Passive;
         }
 
         public override void OnUpdate(Fsm<Enemy> fsm) {
-            MapNavAgent agent = fsm.Owner.NavAgent;
-            MapNavAgent target = fsm.Owner.TargetAgent;
-
-            float distance = agent.DistanceToAgent(fsm.Owner.TargetAgent);
-
-            if (distance > maxDistance) {
-                fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
-            } else if (distance < minDistance) {
-                fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Escaping;
-            }
-
             base.OnUpdate(fsm);
+
+            switch (Game.Instance.CurrentLevel.State) {
+                case GameLevel.LevelState.Chasing: fsm.ChangeState<EnemyChasingState>(); break;
+                case GameLevel.LevelState.Wandering: fsm.ChangeState<EnemyWanderingState>(); break;
+                case GameLevel.LevelState.Escaping: fsm.ChangeState<EnemyEscapeState>(); break;
+            }
+        }
+
+        public override void OnLeave(Fsm<Enemy> fsm) {
+            fsm.Owner.Caught = false;
+            base.OnLeave(fsm);
         }
     }
 }

@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 1752769788387229415}
   - component: {fileID: 1752769788387229413}
   - component: {fileID: 5173487025003544151}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Harusaruhi
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aa11def5c0b2a040aa085b2f2340a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controlMode: 1
+  mode: 0
   maxSpeed: 2
   map: {fileID: 0}
 --- !u!114 &1752769788387229415
@@ -116,6 +116,7 @@ MonoBehaviour:
   chaseMode: 2
   targetAgent: {fileID: 0}
   escapeTime: 5
+  respawnNodeIndex: 0
 --- !u!58 &1752769788387229413
 CircleCollider2D:
   m_ObjectHideFlags: 0

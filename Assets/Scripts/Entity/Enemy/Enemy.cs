@@ -17,16 +17,11 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using UnityEngine;
 
 namespace PacKaf {
     [RequireComponent(typeof(MapNavAgent), typeof(Rigidbody2D))]
     public class Enemy : MonoBehaviour {
-
-        public enum EnemyState {
-            Chasing, Escaping, Wandering
-        }
 
         public enum ChaseMode {
             Late, Early, Predict, Shy
@@ -36,14 +31,14 @@ namespace PacKaf {
         private ChaseMode chaseMode;
 
         [SerializeField]
-        private MapNavAgent targetAgent;
-
-        [SerializeField]
         private float escapeTime;
 
-        public EnemyState State { get; set; }
+        [SerializeField]
+        private int respawnNodeIndex;
+
         public bool Caught { get; set; }
         public MapNavAgent NavAgent { get; private set; }
+        public MapNavAgent TargetAgent { get; set; }
 
         private Fsm<Enemy> fsm;
         private bool moving = false;
@@ -58,9 +53,8 @@ namespace PacKaf {
                 Debug.LogWarningFormat("Target of enemy is null.");
             }
 
-            EnemyChasingState chasingState = (EnemyChasingState)Activator.CreateInstance(ChasingStateType);
-            fsm = new Fsm<Enemy>(this, new EnemyEscapeState(), new EnemyWanderingState(), chasingState);
-            fsm.Start(ChasingStateType);
+            fsm = new Fsm<Enemy>(this, new EnemyEscapeState(), new EnemyWanderingState(), new EnemyRespawnState(), new EnemyStopState(), GenerateChasingState());
+            fsm.Start<EnemyChasingState>();
         }
 
         private void Update() {
@@ -82,26 +76,19 @@ namespace PacKaf {
         }
 
         private void OnTriggerEnter2D(Collider2D collider) {
-            if (collider.name == targetAgent.gameObject.name) {
+            if (collider.tag == "Player") {
                 Caught = true;
             }
         }
 
-        public Type ChasingStateType {
-            get {
-                switch (chaseMode) {
-                    case ChaseMode.Late: return typeof(EnemyLateChasingState);
-                    case ChaseMode.Early: return typeof(EnemyEarlyChasingState);
-                    case ChaseMode.Predict: return typeof(EnemyPredictiveChasingState);
-                    case ChaseMode.Shy: return typeof(EnemyShyChasingState);
-                    default: throw new NotImplementedException("Not implemented chase mode: " + chaseMode.ToString());
-                }
+        private EnemyChasingState GenerateChasingState() {
+            switch (chaseMode) {
+                case ChaseMode.Late: return new EnemyLateChasingState();
+                case ChaseMode.Early: return new EnemyEarlyChasingState();
+                case ChaseMode.Predict: return new EnemyPredictiveChasingState();
+                case ChaseMode.Shy: return new EnemyShyChasingState();
+                default: throw new System.NotImplementedException("Not implemented chase mode: " + chaseMode.ToString());
             }
-        }
-
-        public MapNavAgent TargetAgent {
-            get { return targetAgent; }
-            set { targetAgent = value; }
         }
 
         public Rigidbody2D Rigidbody { get; set; }
@@ -112,6 +99,10 @@ namespace PacKaf {
 
         public Vector2 Position {
             get { return transform.position; }
+        }
+
+        public int RespawnNodeIndex {
+            get { return respawnNodeIndex; }
         }
     }
 }

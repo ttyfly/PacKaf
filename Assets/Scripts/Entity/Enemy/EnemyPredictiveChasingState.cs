@@ -28,7 +28,6 @@ namespace PacKaf {
 
             intermediateNode = null;
             afterIntermediateNode = false;
-            fsm.Owner.NavAgent.ControlMode = MapNavAgent.AgentControlMode.Active;
         }
 
         public override void OnUpdate(Fsm<Enemy> fsm) {

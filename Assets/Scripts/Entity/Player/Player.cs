@@ -46,6 +46,17 @@ namespace PacKaf {
             fsm.Update();
         }
 
+        private void OnTriggerEnter2D(Collider2D collider) {
+            if (collider.tag == "Cake") {
+                Game.Instance.CurrentLevel.EnterEscapeState();
+                Game.Instance.Score += 53;
+                collider.gameObject.SetActive(false);
+            } else if (collider.tag == "Coin") {
+                Game.Instance.Score += 5;
+                collider.gameObject.SetActive(false);
+            }
+        }
+
         public float MoveSpeed {
             get { return moveSpeed; }
         }

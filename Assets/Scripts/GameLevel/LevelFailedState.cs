@@ -18,19 +18,11 @@
  */
 
 namespace PacKaf {
-    public class LevelHardState : FsmState<GameLevel> {
+    public class LevelFailedState : FsmState<GameLevel> {
         public override void OnEnter(Fsm<GameLevel> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.EnemyChase();
-            UnityEngine.Debug.Log("Hard");
-        }
-
-        public override void OnUpdate(Fsm<GameLevel> fsm) {
-            base.OnUpdate(fsm);
-
-            if (TimeSinceEnter > fsm.Owner.ChasingTime) {
-                fsm.ChangeState<LevelRelaxState>();
-            }
+            fsm.Owner.State = GameLevel.LevelState.Failed;
+            UnityEngine.Debug.Log("Failed");
         }
     }
 }

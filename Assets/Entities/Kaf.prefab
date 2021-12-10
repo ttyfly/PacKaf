@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 909433113020308694}
   - component: {fileID: 909433113020308695}
   - component: {fileID: 909433113020308696}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Kaf
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aa11def5c0b2a040aa085b2f2340a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controlMode: 0
+  mode: 0
   maxSpeed: 0
   map: {fileID: 0}
 --- !u!114 &909433113020308694

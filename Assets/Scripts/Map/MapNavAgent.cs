@@ -30,9 +30,10 @@ namespace PacKaf {
         //     Wandering,
         // }
 
-        public enum AgentControlMode {
+        public enum AgentMode {
             Passive,
-            Active,
+            Chasing,
+            Escaping,
         }
 
         // public enum AgentChaseMode {
@@ -46,7 +47,7 @@ namespace PacKaf {
         // private AgentChaseMode chaseMode;
 
         [SerializeField]
-        private AgentControlMode controlMode;
+        private AgentMode mode;
 
         [SerializeField]
         private float maxSpeed;
@@ -99,7 +100,7 @@ namespace PacKaf {
 
             // }
 
-            if (controlMode == AgentControlMode.Passive) {
+            if (mode == AgentMode.Passive) {
 
                 // if (Vector2.Distance(transform.position, NextNode.Position) <= map.NodeRadius) {
                 //     SetNodes(NextNode, NextNode.GetNearestEdge(this).neighbor);
@@ -119,7 +120,7 @@ namespace PacKaf {
                 (MapNode nearestNode, MapEdge nearestEdge) = map.GetNearestEdge(this);
                 SetNodes(nearestNode, nearestEdge.neighbor);
 
-            } else if (controlMode == AgentControlMode.Active) {
+            } else if (mode == AgentMode.Chasing) {
 
                 if (targetAgent != null) {
 
@@ -191,8 +192,64 @@ namespace PacKaf {
                 // 步进
                 transform.position = Vector2.MoveTowards(transform.position, NextNode.Position, maxSpeed * Time.deltaTime);
 
+            } else if (mode == AgentMode.Escaping) {
+
+                if (targetAgent != null) {
+
+                    // 同向同边
+                    if (CurrentNode == targetAgent.CurrentNode && NextNode == targetAgent.NextNode) {
+
+                        // 检测转向
+                        if (CurrentNodeToAgentCost < targetAgent.CurrentNodeToAgentCost && BackwardCostPerUnit != float.PositiveInfinity) {
+                            SetNodes(NextNode, CurrentNode);
+                        }
+
+                    // 异向同边
+                    } else if (CurrentNode == targetAgent.NextNode && NextNode == targetAgent.CurrentNode) {
+
+                        // 检测转向
+                        if (CurrentNodeToAgentCost < targetAgent.AgentToNextNodeCost && BackwardCostPerUnit != float.PositiveInfinity) {
+                            SetNodes(NextNode, CurrentNode);
+                        }
+
+                    // 异边
+                    } else {
+
+                        // 到达 NextNode 后需获得新的 NextNode
+                        if (Vector2.Distance(transform.position, NextNode.Position) < 0.01) {
+                            map.TagReachableNodes(targetAgent.CurrentNode, targetAgent.AgentToCurrentNodeCost, targetAgent.NextNode, targetAgent.AgentToNextNodeCost);
+                            SetNodes(NextNode, NextNode.GetMaxCostNeighbor(exclusion: CurrentNode) ?? CurrentNode);
+
+                        // 如果可转向，需检测转向后是否距离对象更远
+                        } else if (BackwardCostPerUnit != float.PositiveInfinity) {
+                            map.TagReachableNodes(targetAgent.CurrentNode, targetAgent.AgentToCurrentNodeCost, targetAgent.NextNode, targetAgent.AgentToNextNodeCost);
+                            if (CurrentNode.CostFlag > NextNode.CostFlag) {
+                                SetNodes(NextNode, CurrentNode);
+                            }
+                        }
+                    }
+
+                } else if (targetNode != null) {
+
+                    // 到达 NextNode 后需获得新的 NextNode
+                    if (Vector2.Distance(transform.position, NextNode.Position) < 0.01) {
+                        map.TagReachableNodes(targetNode);
+                        SetNodes(NextNode, NextNode.GetMaxCostNeighbor(exclusion: CurrentNode) ?? CurrentNode);
+
+                    // 如果可转向，需检测转向后是否距离对象更远
+                    } else if (BackwardCostPerUnit != float.PositiveInfinity) {
+                        map.TagReachableNodes(targetNode);
+                        if (CurrentNode.CostFlag > NextNode.CostFlag) {
+                            SetNodes(NextNode, CurrentNode);
+                        }
+                    }
+                }
+
+                // 步进
+                transform.position = Vector2.MoveTowards(transform.position, NextNode.Position, maxSpeed * Time.deltaTime);
+
             } else {
-                throw new System.NotImplementedException("Not implemented agent control mode: " + controlMode.ToString());
+                throw new System.NotImplementedException("Not implemented agent control mode: " + mode.ToString());
             }
         }
 
@@ -263,8 +320,16 @@ namespace PacKaf {
         // }
 
         private void SetNodes(MapNode currentNode, MapNode nextNode) {
+            if (currentNode == null) {
+                throw new System.ArgumentNullException(nameof(currentNode));
+            }
+
+            if (nextNode == null) {
+                throw new System.ArgumentNullException(nameof(nextNode));
+            }
+
             if (!currentNode.HasNeighbor(nextNode)) {
-                throw new System.Exception("Next node should be a neighbor of current node.");
+                throw new System.InvalidOperationException("Next node should be a neighbor of current node.");
             }
 
             CurrentNode = currentNode;
@@ -333,25 +398,30 @@ namespace PacKaf {
             targetAgent = null;
         }
 
+        public void SetTarget(int targetNodeIndex) {
+            targetNode = map.Nodes[targetNodeIndex];
+            targetAgent = null;
+        }
+
         public void GotoRandomNode() {
             SetTarget(map.Nodes[Random.Range(0, map.Nodes.Count)]);
         }
 
-        public void EscapeFromAgent(MapNavAgent agent) {
-            float maxScore = 0;
-            MapNode targetNode = null;
-            foreach (MapNode node in map.Nodes) {
-                if (node == CurrentNode || node == NextNode) {
-                    continue;
-                }
-                float score = agent.DistanceToNode(node) - this.DistanceToNode(node);
-                if (score > maxScore) {
-                    maxScore = score;
-                    targetNode = node;
-                }
-            }
-            SetTarget(targetNode);
-        }
+        // public void EscapeFromAgent(MapNavAgent agent) {
+        //     float maxScore = 0;
+        //     MapNode escapeTarget = null;
+        //     foreach (MapNode node in map.Nodes) {
+        //         if (node == CurrentNode || node == NextNode) {
+        //             continue;
+        //         }
+        //         float score = agent.DistanceToNode(node) - this.DistanceToNode(node);
+        //         if (score > maxScore) {
+        //             maxScore = score;
+        //             escapeTarget = node;
+        //         }
+        //     }
+        //     SetTarget(escapeTarget);
+        // }
 
         public bool IsOnTargetNode { get; private set; }
 
@@ -364,9 +434,9 @@ namespace PacKaf {
         //     set { chaseMode = value; }
         // }
 
-        public AgentControlMode ControlMode {
-            get { return controlMode; }
-            set { controlMode = value; }
+        public AgentMode Mode {
+            get { return mode; }
+            set { mode = value; }
         }
 
         public Vector2 Position {

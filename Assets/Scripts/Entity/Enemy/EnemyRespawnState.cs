@@ -18,29 +18,24 @@
  */
 
 namespace PacKaf {
-    public class EnemyShyChasingState : EnemyChasingState {
-
-        private float minDistance = 3;
-        private float maxDistance = 5;
-
+    public class EnemyRespawnState : FsmState<Enemy> {
         public override void OnEnter(Fsm<Enemy> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.NavAgent.SetTarget(fsm.Owner.TargetAgent);
+            fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
+            fsm.Owner.NavAgent.SetTarget(fsm.Owner.RespawnNodeIndex);
         }
 
         public override void OnUpdate(Fsm<Enemy> fsm) {
-            MapNavAgent agent = fsm.Owner.NavAgent;
-            MapNavAgent target = fsm.Owner.TargetAgent;
-
-            float distance = agent.DistanceToAgent(fsm.Owner.TargetAgent);
-
-            if (distance > maxDistance) {
-                fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
-            } else if (distance < minDistance) {
-                fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Escaping;
-            }
-
             base.OnUpdate(fsm);
+
+            if (fsm.Owner.NavAgent.IsOnTargetNode) {
+                fsm.ChangeState<EnemyStopState>();
+            }
+        }
+
+        public override void OnLeave(Fsm<Enemy> fsm) {
+            fsm.Owner.Caught = false;
+            base.OnLeave(fsm);
         }
     }
 }

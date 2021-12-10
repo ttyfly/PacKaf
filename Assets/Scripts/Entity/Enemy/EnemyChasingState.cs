@@ -19,13 +19,23 @@
 
 namespace PacKaf {
     public class EnemyChasingState : FsmState<Enemy> {
+
+        public override void OnEnter(Fsm<Enemy> fsm) {
+            base.OnEnter(fsm);
+            fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
+        }
+
         public override void OnUpdate(Fsm<Enemy> fsm) {
             base.OnUpdate(fsm);
 
-            if (fsm.Owner.State == Enemy.EnemyState.Escaping) {
-                fsm.ChangeState<EnemyEscapeState>();
-            } else if (fsm.Owner.State == Enemy.EnemyState.Wandering) {
-                fsm.ChangeState<EnemyWanderingState>();
+            if (fsm.Owner.Caught) {
+                Game.Instance.CurrentLevel.LevelFail();
+            }
+
+            switch (Game.Instance.CurrentLevel.State) {
+                case GameLevel.LevelState.Escaping: fsm.ChangeState<EnemyEscapeState>(); break;
+                case GameLevel.LevelState.Wandering: fsm.ChangeState<EnemyWanderingState>(); break;
+                case GameLevel.LevelState.Failed: fsm.ChangeState<EnemyStopState>(); break;
             }
         }
     }
