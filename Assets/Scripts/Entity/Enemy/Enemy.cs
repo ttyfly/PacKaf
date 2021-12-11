@@ -34,7 +34,7 @@ namespace PacKaf {
         private float escapeTime;
 
         [SerializeField]
-        private int respawnNodeIndex;
+        private Vector2 respawnPoint;
 
         public bool Caught { get; set; }
         public MapNavAgent NavAgent { get; private set; }
@@ -101,8 +101,8 @@ namespace PacKaf {
             get { return transform.position; }
         }
 
-        public int RespawnNodeIndex {
-            get { return respawnNodeIndex; }
+        public Vector2 RespawnPoint {
+            get { return respawnPoint; }
         }
     }
 }

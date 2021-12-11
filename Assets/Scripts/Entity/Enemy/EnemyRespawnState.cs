@@ -21,20 +21,29 @@ namespace PacKaf {
     public class EnemyRespawnState : FsmState<Enemy> {
         public override void OnEnter(Fsm<Enemy> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
-            fsm.Owner.NavAgent.SetTarget(fsm.Owner.RespawnNodeIndex);
+            // fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
+            // fsm.Owner.NavAgent.SetTarget(fsm.Owner.RespawnNodeIndex);
+            fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Passive;
+            fsm.Owner.Rigidbody.gravityScale = 1;
         }
 
         public override void OnUpdate(Fsm<Enemy> fsm) {
             base.OnUpdate(fsm);
 
-            if (fsm.Owner.NavAgent.IsOnTargetNode) {
+            // if (fsm.Owner.NavAgent.IsOnTargetNode) {
+            //     fsm.ChangeState<EnemyStopState>();
+            // }
+
+            if (TimeSinceEnter > 3) {
                 fsm.ChangeState<EnemyStopState>();
             }
         }
 
         public override void OnLeave(Fsm<Enemy> fsm) {
             fsm.Owner.Caught = false;
+            fsm.Owner.Rigidbody.gravityScale = 0;
+            fsm.Owner.Rigidbody.velocity = UnityEngine.Vector2.zero;
+            fsm.Owner.transform.position = fsm.Owner.RespawnPoint;
             base.OnLeave(fsm);
         }
     }
