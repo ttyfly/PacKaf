@@ -17,16 +17,12 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace PacKaf {
-    public class PlayingState : GameState {
-        public override void OnEnter(Fsm<Game> fsm) {
-            base.OnEnter(fsm);
-            Utility.Scene.LoadScene(fsm.Owner.LevelSceneName);
-        }
+using UnityEngine;
 
-        public override void OnLeave(Fsm<Game> fsm) {
-            Utility.Scene.UnloadAll();
-            base.OnLeave(fsm);
+namespace PacKaf {
+    public class MenuUI : MonoBehaviour {
+        public void OnStartButtonClick() {
+            Game.Instance.StartLevel(1);
         }
     }
 }

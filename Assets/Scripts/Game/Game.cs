@@ -17,13 +17,17 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PacKaf {
     public class Game : MonoBehaviour {
 
         public static Game Instance;
 
+        private Image faderImage;
+        private float faderAlpha;
         private Fsm<Game> gameFsm;
 
         private void Awake() {
@@ -31,6 +35,10 @@ namespace PacKaf {
         }
 
         private void Start() {
+            faderImage = GameObject.Find("Scene Fader Panel").GetComponent<Image>();
+            faderImage.color = new Color(0, 0, 0, 0);
+            faderAlpha = 0;
+
             gameFsm = new Fsm<Game>(this, new MenuState(), new PlayingState(), new SplashState());
             gameFsm.Start<SplashState>();
         }
@@ -39,7 +47,49 @@ namespace PacKaf {
             gameFsm.Update();
         }
 
+        public void StartLevel(int mapNumber) {
+            StartCoroutine(LoadLevel(mapNumber));
+        }
+
+        private IEnumerator LoadLevel(int mapNumber) {
+            while (!SceneFadeOut(0.8f)) {
+                yield return null;
+            }
+
+            LevelSceneName = "Map" + mapNumber;
+            gameFsm.ChangeState<PlayingState>();
+
+            while (!SceneFadeIn(0.8f)) {
+                yield return null;
+            }
+
+            yield break;
+        }
+
+        private bool SceneFadeOut(float fadeTime) {
+            if (faderAlpha > 1) {
+                return true;
+            }
+
+            faderAlpha += Time.deltaTime / fadeTime;
+            faderImage.color = new Color(0, 0, 0, Mathf.Clamp(faderAlpha, 0, 1));
+
+            return false;
+        }
+
+        private bool SceneFadeIn(float fadeTime) {
+            if (faderAlpha < 0) {
+                return true;
+            }
+
+            faderAlpha -= Time.deltaTime / fadeTime;
+            faderImage.color = new Color(0, 0, 0, Mathf.Clamp(faderAlpha, 0, 1));
+
+            return false;
+        }
+
         public GameLevel CurrentLevel { get; set; }
         public int Score { get; set; }
+        public string LevelSceneName { get; set; }
     }
 }
