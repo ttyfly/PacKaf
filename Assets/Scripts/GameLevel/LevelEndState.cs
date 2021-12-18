@@ -17,20 +17,12 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using UnityEngine;
-using UnityEngine.UI;
-
 namespace PacKaf {
-    public class ScoreUI : MonoBehaviour {
-
-        private Text text;
-
-        private void Start() {
-            text = GetComponent<Text>();
-        }
-
-        private void Update() {
-            text.text = string.Format("Score: {0:000000}", Game.Instance.Score);
+    public class LevelEndState : FsmState<GameLevel> {
+        public override void OnEnter(Fsm<GameLevel> fsm) {
+            base.OnEnter(fsm);
+            fsm.Owner.State = GameLevel.LevelState.End;
+            UnityEngine.Debug.Log("End");
         }
     }
 }

@@ -36,7 +36,7 @@ namespace PacKaf {
             switch (Game.Instance.CurrentLevel.State) {
                 case GameLevel.LevelState.Wandering: fsm.ChangeState<EnemyWanderingState>(); break;
                 case GameLevel.LevelState.Chasing: fsm.ChangeState<EnemyChasingState>(); break;
-                case GameLevel.LevelState.Failed: fsm.ChangeState<EnemyStopState>(); break;
+                case GameLevel.LevelState.End: fsm.ChangeState<EnemyStopState>(); break;
             }
         }
     }

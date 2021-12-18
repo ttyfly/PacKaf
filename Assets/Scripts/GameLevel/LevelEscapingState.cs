@@ -18,7 +18,7 @@
  */
 
 namespace PacKaf {
-    public class LevelEscapingState : FsmState<GameLevel> {
+    public class LevelEscapingState : LevelPlayingState {
         public override void OnEnter(Fsm<GameLevel> fsm) {
             base.OnEnter(fsm);
             fsm.Owner.State = GameLevel.LevelState.Escaping;

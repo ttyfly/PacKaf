@@ -26,6 +26,10 @@ namespace PacKaf {
 
         public static Game Instance;
 
+        [SerializeField]
+        private string[] LevelSceneNames;
+
+        private int currentLevelIndex;
         private Image faderImage;
         private float faderAlpha;
         private Fsm<Game> gameFsm;
@@ -35,6 +39,7 @@ namespace PacKaf {
         }
 
         private void Start() {
+            currentLevelIndex = -1;
             faderImage = GameObject.Find("Scene Fader Panel").GetComponent<Image>();
             faderImage.color = new Color(0, 0, 0, 0);
             faderAlpha = 0;
@@ -47,16 +52,49 @@ namespace PacKaf {
             gameFsm.Update();
         }
 
-        public void StartLevel(int mapNumber) {
-            StartCoroutine(LoadLevel(mapNumber));
+        public void StartNextLevel() {
+            StartLevel(currentLevelIndex + 1);
         }
 
-        private IEnumerator LoadLevel(int mapNumber) {
+        public bool HasNextLevel() {
+            return currentLevelIndex < LevelSceneNames.Length - 1;
+        }
+
+        public void StartLevel(int levelIndex) {
+            currentLevelIndex = levelIndex;
+            StartCoroutine(LoadLevel(levelIndex));
+        }
+
+        public void OpenMenu() {
+            StartCoroutine(LoadMenu());
+        }
+
+        private IEnumerator LoadMenu() {
+            currentLevelIndex = -1;
+
             while (!SceneFadeOut(0.8f)) {
                 yield return null;
             }
 
-            LevelSceneName = "Map" + mapNumber;
+            gameFsm.ChangeState<MenuState>();
+
+            while (!SceneFadeIn(0.8f)) {
+                yield return null;
+            }
+
+            yield break;
+        }
+
+        private IEnumerator LoadLevel(int levelIndex) {
+            while (!SceneFadeOut(0.8f)) {
+                yield return null;
+            }
+
+            if (levelIndex < 0 || levelIndex >= LevelSceneNames.Length) {
+                throw new System.IndexOutOfRangeException("Level Index Out Of Range.");
+            }
+
+            LevelSceneName = LevelSceneNames[levelIndex];
             gameFsm.ChangeState<PlayingState>();
 
             while (!SceneFadeIn(0.8f)) {

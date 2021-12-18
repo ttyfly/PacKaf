@@ -17,12 +17,23 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using UnityEngine;
+
 namespace PacKaf {
-    public class LevelFailedState : FsmState<GameLevel> {
-        public override void OnEnter(Fsm<GameLevel> fsm) {
-            base.OnEnter(fsm);
-            fsm.Owner.State = GameLevel.LevelState.Failed;
-            UnityEngine.Debug.Log("Failed");
+    public class LevelPlayingState : FsmState<GameLevel> {
+        public override void OnUpdate(Fsm<GameLevel> fsm) {
+            int activeCount = 0;
+            foreach (GameObject pickableItem in fsm.Owner.PickableItems) {
+                if (pickableItem.activeInHierarchy) {
+                    activeCount++;
+                }
+            }
+            if (activeCount == 0) {
+                fsm.Owner.UI.ShowBoardWin();
+                fsm.ChangeState<LevelEndState>();
+            }
+
+            base.OnUpdate(fsm);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace PacKaf {
     public class GameLevel : MonoBehaviour {
 
         public enum LevelState {
-            Chasing, Wandering, Escaping, Failed
+            Chasing, Wandering, Escaping, End
         }
 
         [SerializeField]
@@ -36,6 +36,7 @@ namespace PacKaf {
         [SerializeField]
         private float escapeTime;
 
+        private GameUI ui;
         private Player player;
         private Enemy[] enemys;
         private GameObject[] pickableItems;
@@ -48,6 +49,7 @@ namespace PacKaf {
             //     Game.Instance.CurrentLevel = this;
             // }
 
+            ui = GameObject.Find("UI").GetComponent<GameUI>();
             player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
             enemys = GameObject.FindGameObjectsWithTag("Enemy").Select((GameObject obj) => obj.GetComponent<Enemy>()).ToArray<Enemy>();
             pickableItems = GameObject.FindGameObjectsWithTag("Coin").Concat<GameObject>(GameObject.FindGameObjectsWithTag("Cake")).ToArray<GameObject>();
@@ -62,22 +64,12 @@ namespace PacKaf {
                 Game.Instance.CurrentLevel = this;
             }
 
-            fsm = new Fsm<GameLevel>(this, new LevelChasingState(), new LevelEscapingState(), new LevelWanderingState(), new LevelFailedState());
+            fsm = new Fsm<GameLevel>(this, new LevelChasingState(), new LevelEscapingState(), new LevelWanderingState(), new LevelEndState());
             fsm.Start<LevelWanderingState>();
         }
 
         private void Update() {
             fsm.Update();
-
-            int activeCount = 0;
-            foreach (GameObject pickableItem in pickableItems) {
-                if (pickableItem.activeInHierarchy) {
-                    activeCount++;
-                }
-            }
-            if (activeCount == 0) {
-                LevelPass();
-            }
         }
 
         public void EnterEscapeState() {
@@ -85,11 +77,8 @@ namespace PacKaf {
         }
 
         public void LevelFail() {
-            fsm.ChangeState<LevelFailedState>();
-        }
-
-        public void LevelPass() {
-            Debug.Log("ok");
+            UI.ShowBoardLoss();
+            fsm.ChangeState<LevelEndState>();
         }
 
         public float WanderingTime {
@@ -102,6 +91,14 @@ namespace PacKaf {
 
         public float EscapeTime {
             get { return escapeTime; }
+        }
+
+        public GameObject[] PickableItems {
+            get { return pickableItems; }
+        }
+
+        public GameUI UI {
+            get { return ui; }
         }
     }
 }

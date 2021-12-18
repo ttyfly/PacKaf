@@ -22,7 +22,7 @@ using UnityEngine;
 namespace PacKaf {
     public class MenuUI : MonoBehaviour {
         public void OnStartButtonClick() {
-            Game.Instance.StartLevel(1);
+            Game.Instance.StartLevel(0);
         }
     }
 }

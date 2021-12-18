@@ -327,6 +327,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a4c96cb40ae7524388a2920a84e86cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LevelSceneNames:
+  - Map1
 --- !u!4 &671035410
 Transform:
   m_ObjectHideFlags: 0

@@ -19,7 +19,6 @@
 
 namespace PacKaf {
     public static class Constant {
-        public static class Asset {
-        }
+        public const int LevelCount = 1;
     }
 }

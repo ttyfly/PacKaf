@@ -18,7 +18,7 @@
  */
 
 namespace PacKaf {
-    public class LevelWanderingState : FsmState<GameLevel> {
+    public class LevelWanderingState : LevelPlayingState {
         public override void OnEnter(Fsm<GameLevel> fsm) {
             base.OnEnter(fsm);
             fsm.Owner.State = GameLevel.LevelState.Wandering;
