@@ -60,70 +60,54 @@ namespace PacKaf {
             return currentLevelIndex < LevelSceneNames.Length - 1;
         }
 
-        public void StartLevel(int levelIndex) {
-            currentLevelIndex = levelIndex;
-            StartCoroutine(LoadLevel(levelIndex));
-        }
-
         public void OpenMenu() {
-            StartCoroutine(LoadMenu());
-        }
-
-        private IEnumerator LoadMenu() {
             currentLevelIndex = -1;
-
-            while (!SceneFadeOut(0.8f)) {
-                yield return null;
-            }
-
             gameFsm.ChangeState<MenuState>();
-
-            while (!SceneFadeIn(0.8f)) {
-                yield return null;
-            }
-
-            yield break;
         }
 
-        private IEnumerator LoadLevel(int levelIndex) {
-            while (!SceneFadeOut(0.8f)) {
-                yield return null;
-            }
-
+        public void StartLevel(int levelIndex) {
             if (levelIndex < 0 || levelIndex >= LevelSceneNames.Length) {
                 throw new System.IndexOutOfRangeException("Level Index Out Of Range.");
             }
 
+            currentLevelIndex = levelIndex;
             LevelSceneName = LevelSceneNames[levelIndex];
             gameFsm.ChangeState<PlayingState>();
+        }
 
-            while (!SceneFadeIn(0.8f)) {
+        public void ChangeScene(string sceneName) {
+            StartCoroutine(ChangeSceneCo(sceneName));
+        }
+
+        public void Quit() {
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            Application.Quit();
+            #endif
+        }
+
+        private IEnumerator ChangeSceneCo(string sceneName) {
+            yield return StartCoroutine(ScreenFadeOutCo(0.5f));
+            Utility.Scene.UnloadAll();
+            Utility.Scene.LoadScene(sceneName);
+            yield return StartCoroutine(ScreenFadeInCo(0.5f));
+        }
+
+        private IEnumerator ScreenFadeOutCo(float fadeTime) {
+            while (faderAlpha <= 1) {
+                faderAlpha += Time.deltaTime / fadeTime;
+                faderImage.color = new Color(0, 0, 0, Mathf.Clamp(faderAlpha, 0, 1));
                 yield return null;
             }
-
-            yield break;
         }
 
-        private bool SceneFadeOut(float fadeTime) {
-            if (faderAlpha > 1) {
-                return true;
+        private IEnumerator ScreenFadeInCo(float fadeTime) {
+            while (faderAlpha >= 0) {
+                faderAlpha -= Time.deltaTime / fadeTime;
+                faderImage.color = new Color(0, 0, 0, Mathf.Clamp(faderAlpha, 0, 1));
+                yield return null;
             }
-
-            faderAlpha += Time.deltaTime / fadeTime;
-            faderImage.color = new Color(0, 0, 0, Mathf.Clamp(faderAlpha, 0, 1));
-
-            return false;
-        }
-
-        private bool SceneFadeIn(float fadeTime) {
-            if (faderAlpha < 0) {
-                return true;
-            }
-
-            faderAlpha -= Time.deltaTime / fadeTime;
-            faderImage.color = new Color(0, 0, 0, Mathf.Clamp(faderAlpha, 0, 1));
-
-            return false;
         }
 
         public GameLevel CurrentLevel { get; set; }

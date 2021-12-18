@@ -21,19 +21,14 @@ namespace PacKaf {
     public class SplashState : GameState {
         public override void OnEnter(Fsm<Game> fsm) {
             base.OnEnter(fsm);
-            Utility.Scene.LoadScene("Splash");
+            fsm.Owner.ChangeScene("Splash");
         }
 
         public override void OnUpdate(Fsm<Game> fsm) {
             base.OnUpdate(fsm);
-            if (this.TimeSinceEnter > 2) {
+            if (this.TimeSinceEnter > 4) {
                 fsm.ChangeState<MenuState>();
             }
-        }
-
-        public override void OnLeave(Fsm<Game> fsm) {
-            Utility.Scene.UnloadAll();
-            base.OnLeave(fsm);
         }
     }
 }

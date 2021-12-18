@@ -37,7 +37,8 @@ namespace PacKaf {
                 new PlayerWalkDownState(),
                 new PlayerWalkLeftState(),
                 new PlayerWalkRightState(),
-                new PlayerWalkUpState()
+                new PlayerWalkUpState(),
+                new PlayerFreezeState()
             );
             fsm.Start<PlayerIdleState>();
         }
@@ -55,6 +56,10 @@ namespace PacKaf {
                 Game.Instance.Score += 5;
                 collider.gameObject.SetActive(false);
             }
+        }
+
+        public void Freeze() {
+            fsm.ChangeState<PlayerFreezeState>();
         }
 
         public float MoveSpeed {

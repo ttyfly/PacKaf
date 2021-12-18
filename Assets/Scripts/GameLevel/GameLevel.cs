@@ -77,7 +77,7 @@ namespace PacKaf {
         }
 
         public void LevelFail() {
-            UI.ShowBoardLoss();
+            player.Freeze();
             fsm.ChangeState<LevelEndState>();
         }
 

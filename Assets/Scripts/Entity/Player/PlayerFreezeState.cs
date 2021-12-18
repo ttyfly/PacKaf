@@ -17,11 +17,13 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using UnityEngine;
+
 namespace PacKaf {
-    public class PlayingState : GameState {
-        public override void OnEnter(Fsm<Game> fsm) {
+    public class PlayerFreezeState : FsmState<Player> {
+        public override void OnEnter(Fsm<Player> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.ChangeScene(fsm.Owner.LevelSceneName);
+            fsm.Owner.Rigidbody.velocity = Vector2.zero;
         }
     }
 }

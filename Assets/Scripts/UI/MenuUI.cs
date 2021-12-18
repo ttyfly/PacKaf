@@ -24,5 +24,9 @@ namespace PacKaf {
         public void OnStartButtonClick() {
             Game.Instance.StartLevel(0);
         }
+
+        public void OnQuitButtonClick() {
+            Game.Instance.Quit();
+        }
     }
 }

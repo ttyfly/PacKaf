@@ -21,12 +21,7 @@ namespace PacKaf {
     public class MenuState : GameState {
         public override void OnEnter(Fsm<Game> fsm) {
             base.OnEnter(fsm);
-            Utility.Scene.LoadScene("Menu");
-        }
-
-        public override void OnLeave(Fsm<Game> fsm) {
-            Utility.Scene.UnloadAll();
-            base.OnLeave(fsm);
+            fsm.Owner.ChangeScene("Menu");
         }
     }
 }

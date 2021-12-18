@@ -23,7 +23,7 @@ namespace PacKaf {
     public class PlayerIdleState : FsmState<Player> {
         public override void OnEnter(Fsm<Player> fsm) {
             base.OnEnter(fsm);
-            fsm.Owner.Rigidbody.velocity = fsm.Owner.MoveSpeed * Vector2.zero;
+            fsm.Owner.Rigidbody.velocity = Vector2.zero;
         }
 
         public override void OnUpdate(Fsm<Player> fsm) {

@@ -21,6 +21,7 @@ namespace PacKaf {
     public class LevelEndState : FsmState<GameLevel> {
         public override void OnEnter(Fsm<GameLevel> fsm) {
             base.OnEnter(fsm);
+            fsm.Owner.UI.ShowBoardLoss();
             fsm.Owner.State = GameLevel.LevelState.End;
             UnityEngine.Debug.Log("End");
         }
