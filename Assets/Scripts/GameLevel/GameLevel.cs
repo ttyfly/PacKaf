@@ -53,6 +53,7 @@ namespace PacKaf {
             player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
             enemys = GameObject.FindGameObjectsWithTag("Enemy").Select((GameObject obj) => obj.GetComponent<Enemy>()).ToArray<Enemy>();
             pickableItems = GameObject.FindGameObjectsWithTag("Coin").Concat<GameObject>(GameObject.FindGameObjectsWithTag("Cake")).ToArray<GameObject>();
+            // pickableItems = GameObject.FindGameObjectsWithTag("Cake");
 
             foreach (Enemy enemy in enemys) {
                 enemy.TargetAgent = player.GetComponent<MapNavAgent>();
@@ -78,6 +79,7 @@ namespace PacKaf {
 
         public void LevelFail() {
             player.Freeze();
+            ui.ShowBoardLoss();
             fsm.ChangeState<LevelEndState>();
         }
 

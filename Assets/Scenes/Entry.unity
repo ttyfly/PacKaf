@@ -329,6 +329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelSceneNames:
   - Map1
+  - Map2
 --- !u!4 &671035410
 Transform:
   m_ObjectHideFlags: 0
