@@ -89,6 +89,13 @@ namespace PacKaf.Editor {
                 map.Nodes.Add(selectedNode);
             }
 
+            if (GUILayout.Button("Select Next Node") && selectedNode != null) {
+                int nextIndex = GetNodeIndex(selectedNode) + 1;
+                if (nextIndex < map.Nodes.Count) {
+                    selectedNode = map.Nodes[nextIndex];
+                }
+            }
+
             editState = GUILayout.SelectionGrid(editState, new[] {"Select Node", "Delete Node", "Add Neighbor", "Delete Neighbor"}, 2);
 
             if (editState == 0 && clickedNode != null) {

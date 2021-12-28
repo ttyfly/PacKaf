@@ -330,6 +330,7 @@ MonoBehaviour:
   LevelSceneNames:
   - Map1
   - Map2
+  - Map3
 --- !u!4 &671035410
 Transform:
   m_ObjectHideFlags: 0
