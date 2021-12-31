@@ -22,6 +22,7 @@ namespace PacKaf {
         public override void OnEnter(Fsm<Game> fsm) {
             base.OnEnter(fsm);
             fsm.Owner.ChangeScene("Menu");
+            Game.Instance.Score = 0;
         }
     }
 }

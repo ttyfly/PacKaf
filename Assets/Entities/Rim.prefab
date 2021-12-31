@@ -114,9 +114,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chaseMode: 0
-  targetAgent: {fileID: 0}
   escapeTime: 5
-  respawnNodeIndex: 0
+  respawnPoint: {x: 0, y: 0}
+  alertSprite: {fileID: 21300000, guid: ccd34b79ea9515b4d9f25536254e31bc, type: 3}
 --- !u!58 &597594932892005719
 CircleCollider2D:
   m_ObjectHideFlags: 0

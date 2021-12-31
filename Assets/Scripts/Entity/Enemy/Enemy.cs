@@ -36,9 +36,13 @@ namespace PacKaf {
         [SerializeField]
         private Vector2 respawnPoint;
 
+        [SerializeField]
+        private Sprite alertSprite;
+
         public bool Caught { get; set; }
         public MapNavAgent NavAgent { get; private set; }
         public MapNavAgent TargetAgent { get; set; }
+        public SpriteRenderer SpriteRenderer { get; private set; }
 
         private Fsm<Enemy> fsm;
         private bool moving = false;
@@ -48,6 +52,7 @@ namespace PacKaf {
         private void Start() {
             NavAgent = GetComponent<MapNavAgent>();
             Rigidbody = GetComponent<Rigidbody2D>();
+            SpriteRenderer = GetComponent<SpriteRenderer>();
 
             if (TargetAgent == null) {
                 Debug.LogWarningFormat("Target of enemy is null.");
@@ -103,6 +108,10 @@ namespace PacKaf {
 
         public Vector2 RespawnPoint {
             get { return respawnPoint; }
+        }
+
+        public Sprite AlertSprite {
+            get { return alertSprite; }
         }
     }
 }

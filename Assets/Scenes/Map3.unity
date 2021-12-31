@@ -6959,8 +6959,6 @@ MonoBehaviour:
       costPerUnit: 1
     - neighborIndex: 73
       costPerUnit: 1
-    - neighborIndex: 76
-      costPerUnit: 1
   - position: {x: 6.967116, y: 5.022104}
     edges:
     - neighborIndex: 72
@@ -7028,6 +7026,12 @@ MonoBehaviour:
     - neighborIndex: 82
       costPerUnit: 1
     - neighborIndex: 80
+      costPerUnit: 1
+    - neighborIndex: 43
+      costPerUnit: 1
+    - neighborIndex: 2
+      costPerUnit: 1
+    - neighborIndex: 78
       costPerUnit: 1
   - position: {x: -1.7822468, y: 0.6862792}
     edges:

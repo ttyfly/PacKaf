@@ -17,12 +17,18 @@
  * along with PacKaf.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using UnityEngine;
+
 namespace PacKaf {
     public class EnemyEscapeState : FsmState<Enemy> {
+
+        private Sprite prevSprite;
 
         public override void OnEnter(Fsm<Enemy> fsm) {
             base.OnEnter(fsm);
             fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Escaping;
+            prevSprite = fsm.Owner.SpriteRenderer.sprite;
+            fsm.Owner.SpriteRenderer.sprite = fsm.Owner.AlertSprite;
         }
 
         public override void OnUpdate(Fsm<Enemy> fsm) {
@@ -38,6 +44,11 @@ namespace PacKaf {
                 case GameLevel.LevelState.Chasing: fsm.ChangeState<EnemyChasingState>(); break;
                 case GameLevel.LevelState.End: fsm.ChangeState<EnemyStopState>(); break;
             }
+        }
+
+        public override void OnLeave(Fsm<Enemy> fsm) {
+            fsm.Owner.SpriteRenderer.sprite = prevSprite;
+            base.OnLeave(fsm);
         }
     }
 }
