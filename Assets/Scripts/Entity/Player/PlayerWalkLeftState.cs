@@ -21,13 +21,13 @@ using UnityEngine;
 
 namespace PacKaf {
     public class PlayerWalkLeftState : FsmState<Player> {
-        public override void OnEnter(Fsm<Player> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.Renderer.flipX = false;
         }
 
-        public override void OnUpdate(Fsm<Player> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             fsm.Owner.Rigidbody.velocity = fsm.Owner.MoveSpeed * Vector2.left;
 

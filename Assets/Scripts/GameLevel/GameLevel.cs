@@ -73,6 +73,10 @@ namespace PacKaf {
             fsm.Update();
         }
 
+        private void OnDestroy() {
+            fsm.Destroy();
+        }
+
         public void EnterEscapeState() {
             fsm.ChangeState<LevelEscapingState>();
         }

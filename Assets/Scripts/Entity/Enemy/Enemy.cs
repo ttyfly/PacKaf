@@ -80,6 +80,10 @@ namespace PacKaf {
             prevPosition = Position;
         }
 
+        private void OnDestroy() {
+            fsm.Destroy();
+        }
+
         private void OnTriggerEnter2D(Collider2D collider) {
             if (collider.tag == "Player") {
                 Caught = true;

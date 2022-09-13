@@ -52,7 +52,7 @@ namespace PacKaf {
             foreach (FsmState<T> state in states) {
                 if (state is U) {
                     CurrentState = state;
-                    CurrentState.OnEnter(this);
+                    CurrentState.OnEnter();
                     return;
                 }
             }
@@ -67,7 +67,7 @@ namespace PacKaf {
             foreach (FsmState<T> state in states) {
                 if (stateType.IsInstanceOfType(state)) {
                     CurrentState = state;
-                    CurrentState.OnEnter(this);
+                    CurrentState.OnEnter();
                     return;
                 }
             }
@@ -82,7 +82,7 @@ namespace PacKaf {
                 Debug.LogErrorFormat("Update fsm failed: Fsm 'Fsm<{0}>' is not started.", typeof(T).Name);
                 return;
             }
-            CurrentState.OnUpdate(this);
+            CurrentState.OnUpdate();
         }
 
         /// <summary>
@@ -90,10 +90,10 @@ namespace PacKaf {
         /// </summary>
         public void Destroy() {
             if (CurrentState != null) {
-                CurrentState.OnLeave(this);
+                CurrentState.OnLeave();
             }
             for (int i = 0; i < states.Length; i++) {
-                states[i].OnDestroy(this);
+                states[i].OnDestroy();
                 states[i] = null;
             }
             states = null;
@@ -108,11 +108,11 @@ namespace PacKaf {
                 Debug.LogErrorFormat("Change state failed: Fsm 'Fsm<{0}>' is not started.", typeof(T).Name);
                 return;
             }
-            CurrentState.OnLeave(this);
+            CurrentState.OnLeave();
             foreach (FsmState<T> state in states) {
                 if (state is U) {
                     CurrentState = state;
-                    CurrentState.OnEnter(this);
+                    CurrentState.OnEnter();
                     return;
                 }
             }
@@ -128,11 +128,11 @@ namespace PacKaf {
                 Debug.LogErrorFormat("Change state failed: Fsm 'Fsm<{0}>' is not started.", typeof(T).Name);
                 return;
             }
-            CurrentState.OnLeave(this);
+            CurrentState.OnLeave();
             foreach (FsmState<T> state in states) {
                 if (stateType.IsInstanceOfType(state)) {
                     CurrentState = state;
-                    CurrentState.OnEnter(this);
+                    CurrentState.OnEnter();
                     return;
                 }
             }

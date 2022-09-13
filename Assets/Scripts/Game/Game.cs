@@ -52,6 +52,10 @@ namespace PacKaf {
             gameFsm.Update();
         }
 
+        private void OnDestroy() {
+            gameFsm.Destroy();
+        }
+
         public void StartNextLevel() {
             StartLevel(currentLevelIndex + 1);
         }

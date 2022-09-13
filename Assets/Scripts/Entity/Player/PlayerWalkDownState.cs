@@ -22,8 +22,8 @@ using UnityEngine;
 namespace PacKaf {
     public class PlayerWalkDownState : FsmState<Player> {
 
-        public override void OnUpdate(Fsm<Player> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             fsm.Owner.Rigidbody.velocity = fsm.Owner.MoveSpeed * Vector2.down;
 

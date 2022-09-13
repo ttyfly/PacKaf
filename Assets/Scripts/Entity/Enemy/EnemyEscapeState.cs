@@ -24,15 +24,15 @@ namespace PacKaf {
 
         private Sprite prevSprite;
 
-        public override void OnEnter(Fsm<Enemy> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Escaping;
             prevSprite = fsm.Owner.SpriteRenderer.sprite;
             fsm.Owner.SpriteRenderer.sprite = fsm.Owner.AlertSprite;
         }
 
-        public override void OnUpdate(Fsm<Enemy> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             if (fsm.Owner.Caught) {
                 Game.Instance.Score += 100;
@@ -46,9 +46,9 @@ namespace PacKaf {
             }
         }
 
-        public override void OnLeave(Fsm<Enemy> fsm) {
+        public override void OnLeave() {
             fsm.Owner.SpriteRenderer.sprite = prevSprite;
-            base.OnLeave(fsm);
+            base.OnLeave();
         }
     }
 }

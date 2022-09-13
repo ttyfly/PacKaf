@@ -23,12 +23,12 @@ namespace PacKaf {
         private float minDistance = 3;
         private float maxDistance = 5;
 
-        public override void OnEnter(Fsm<Enemy> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.NavAgent.SetTarget(fsm.Owner.TargetAgent);
         }
 
-        public override void OnUpdate(Fsm<Enemy> fsm) {
+        public override void OnUpdate() {
             MapNavAgent agent = fsm.Owner.NavAgent;
             MapNavAgent target = fsm.Owner.TargetAgent;
 
@@ -40,7 +40,7 @@ namespace PacKaf {
                 fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Escaping;
             }
 
-            base.OnUpdate(fsm);
+            base.OnUpdate();
         }
     }
 }

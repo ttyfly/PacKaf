@@ -19,14 +19,14 @@
 
 namespace PacKaf {
     public class LevelEscapingState : LevelPlayingState {
-        public override void OnEnter(Fsm<GameLevel> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.State = GameLevel.LevelState.Escaping;
             UnityEngine.Debug.Log("Escaping");
         }
 
-        public override void OnUpdate(Fsm<GameLevel> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             if (TimeSinceEnter > fsm.Owner.EscapeTime) {
                 fsm.ChangeState<LevelChasingState>();

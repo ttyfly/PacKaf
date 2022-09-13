@@ -47,6 +47,10 @@ namespace PacKaf {
             fsm.Update();
         }
 
+        private void OnDestroy() {
+            fsm.Destroy();
+        }
+
         private void OnTriggerEnter2D(Collider2D collider) {
             if (collider.tag == "Cake") {
                 Game.Instance.CurrentLevel.EnterEscapeState();

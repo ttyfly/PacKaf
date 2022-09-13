@@ -18,25 +18,19 @@
  */
 
 namespace PacKaf {
-    public class EnemyChasingState : FsmState<Enemy> {
+    public static partial class Constant {
+        public static class EventID {
+            public const int LevelStart = 100;
+            public const int LevelFailed = 101;
+            public const int LevelWin = 102;
 
-        public override void OnEnter() {
-            base.OnEnter();
-            fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Chasing;
-        }
+            public const int PlayerPickCoin = 500;
+            public const int PlayerEatCake = 501;
+            public const int PlayerCatchEnemy = 502;
 
-        public override void OnUpdate() {
-            base.OnUpdate();
-
-            if (fsm.Owner.Caught) {
-                Game.Instance.CurrentLevel.LevelFail();
-            }
-
-            switch (Game.Instance.CurrentLevel.State) {
-                case GameLevel.LevelState.Escaping: fsm.ChangeState<EnemyEscapeState>(); break;
-                case GameLevel.LevelState.Wandering: fsm.ChangeState<EnemyWanderingState>(); break;
-                case GameLevel.LevelState.End: fsm.ChangeState<EnemyStopState>(); break;
-            }
+            public const int EnemyStartWandering = 600;
+            public const int EnemyStartChasing = 601;
+            public const int EnemyStartEscaping = 602;
         }
     }
 }

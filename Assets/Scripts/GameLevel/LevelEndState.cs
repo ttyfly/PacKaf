@@ -19,8 +19,8 @@
 
 namespace PacKaf {
     public class LevelEndState : FsmState<GameLevel> {
-        public override void OnEnter(Fsm<GameLevel> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.State = GameLevel.LevelState.End;
             UnityEngine.Debug.Log("End");
         }

@@ -19,13 +19,13 @@
 
 namespace PacKaf {
     public class EnemyStopState : FsmState<Enemy> {
-        public override void OnEnter(Fsm<Enemy> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.NavAgent.Mode = MapNavAgent.AgentMode.Passive;
         }
 
-        public override void OnUpdate(Fsm<Enemy> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             switch (Game.Instance.CurrentLevel.State) {
                 case GameLevel.LevelState.Chasing: fsm.ChangeState<EnemyChasingState>(); break;
@@ -34,9 +34,9 @@ namespace PacKaf {
             }
         }
 
-        public override void OnLeave(Fsm<Enemy> fsm) {
+        public override void OnLeave() {
             fsm.Owner.Caught = false;
-            base.OnLeave(fsm);
+            base.OnLeave();
         }
     }
 }

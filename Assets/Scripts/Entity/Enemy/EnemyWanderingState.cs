@@ -22,13 +22,13 @@ using UnityEngine;
 namespace PacKaf {
     public class EnemyWanderingState : FsmState<Enemy> {
 
-        public override void OnEnter(Fsm<Enemy> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.NavAgent.SetTarget(GetNextRandomNode(fsm.Owner.NavAgent));
         }
 
-        public override void OnUpdate(Fsm<Enemy> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             if (fsm.Owner.NavAgent.IsOnTargetNode) {
                 fsm.Owner.NavAgent.SetTarget(GetNextRandomNode(fsm.Owner.NavAgent));

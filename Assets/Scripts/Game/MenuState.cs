@@ -19,8 +19,8 @@
 
 namespace PacKaf {
     public class MenuState : GameState {
-        public override void OnEnter(Fsm<Game> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.ChangeScene("Menu");
             Game.Instance.Score = 0;
         }

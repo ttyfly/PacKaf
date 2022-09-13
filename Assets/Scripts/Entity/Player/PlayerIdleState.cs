@@ -18,16 +18,17 @@
  */
 
 using UnityEngine;
+using System;
 
 namespace PacKaf {
     public class PlayerIdleState : FsmState<Player> {
-        public override void OnEnter(Fsm<Player> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.Rigidbody.velocity = Vector2.zero;
         }
 
-        public override void OnUpdate(Fsm<Player> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             if (Input.GetKey(KeyCode.W)) {
                 fsm.ChangeState<PlayerWalkUpState>();

@@ -21,7 +21,7 @@ using UnityEngine;
 
 namespace PacKaf {
     public class LevelPlayingState : FsmState<GameLevel> {
-        public override void OnUpdate(Fsm<GameLevel> fsm) {
+        public override void OnUpdate() {
             int activeCount = 0;
             foreach (GameObject pickableItem in fsm.Owner.PickableItems) {
                 if (pickableItem.activeInHierarchy) {
@@ -33,7 +33,7 @@ namespace PacKaf {
                 fsm.ChangeState<LevelEndState>();
             }
 
-            base.OnUpdate(fsm);
+            base.OnUpdate();
         }
     }
 }

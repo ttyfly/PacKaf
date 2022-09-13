@@ -23,15 +23,15 @@ namespace PacKaf {
         private MapNode intermediateNode;
         private bool afterIntermediateNode;
 
-        public override void OnEnter(Fsm<Enemy> fsm){
-            base.OnEnter(fsm);
+        public override void OnEnter(){
+            base.OnEnter();
 
             intermediateNode = null;
             afterIntermediateNode = false;
         }
 
-        public override void OnUpdate(Fsm<Enemy> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             if (fsm.Owner.TargetAgent.NextNode != intermediateNode) {
                 intermediateNode = GetIntermediateNode(fsm.Owner.TargetAgent);

@@ -21,8 +21,8 @@ using UnityEngine;
 
 namespace PacKaf {
     public class PlayerFreezeState : FsmState<Player> {
-        public override void OnEnter(Fsm<Player> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.Rigidbody.velocity = Vector2.zero;
         }
     }

@@ -22,16 +22,21 @@ using UnityEngine;
 namespace PacKaf {
     public class FsmState<T> {
 
-        public virtual void OnInit(Fsm<T> fsm) {}
+        protected Fsm<T> fsm;
 
-        public virtual void OnEnter(Fsm<T> fsm) {
+        public virtual void OnInit(Fsm<T> fsm) {
+            this.fsm = fsm;
+        }
+
+        public virtual void OnEnter() {
             EnterTime = Time.time;
         }
-        public virtual void OnUpdate(Fsm<T> fsm) {}
 
-        public virtual void OnLeave(Fsm<T> fsm) {}
+        public virtual void OnUpdate() {}
 
-        public virtual void OnDestroy(Fsm<T> fsm) {}
+        public virtual void OnLeave() {}
+
+        public virtual void OnDestroy() {}
 
         protected float TimeSinceEnter {
             get { return Time.time - EnterTime; }

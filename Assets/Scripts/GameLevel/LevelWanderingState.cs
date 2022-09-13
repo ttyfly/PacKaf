@@ -19,14 +19,14 @@
 
 namespace PacKaf {
     public class LevelWanderingState : LevelPlayingState {
-        public override void OnEnter(Fsm<GameLevel> fsm) {
-            base.OnEnter(fsm);
+        public override void OnEnter() {
+            base.OnEnter();
             fsm.Owner.State = GameLevel.LevelState.Wandering;
             UnityEngine.Debug.Log("Wandering");
         }
 
-        public override void OnUpdate(Fsm<GameLevel> fsm) {
-            base.OnUpdate(fsm);
+        public override void OnUpdate() {
+            base.OnUpdate();
 
             if (TimeSinceEnter > fsm.Owner.WanderingTime) {
                 fsm.ChangeState<LevelChasingState>();
